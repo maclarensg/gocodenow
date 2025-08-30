@@ -1,0 +1,9 @@
+.claude
+.devbox
+gocodenow
+!cmd/gocodenow
+tmp/*
+!tmp/.gitkeep
+
+# Security sandbox temporary directories
+internal/security/tmp/*

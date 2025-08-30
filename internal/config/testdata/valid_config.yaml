@@ -1,0 +1,41 @@
+llm:
+  endpoint: "http://localhost:1234/v1"
+  model: "qwen/qwen2.5-coder-14b"
+  token: "test-token"
+  timeout: 30
+  max_retries: 3
+  rate_limit_rpm: 60
+
+storage:
+  database_path: "/tmp/test.db"
+  cache_size: 100
+  auto_save_freq: "5m"
+  max_memory_mb: 256
+  backup_interval: "24h"
+  cleanup_interval: "168h"
+  enable_compression: true
+
+security:
+  file_operations:
+    allowed_paths: ["."]
+    blocked_paths: ["/etc", "/proc", "/sys"]
+    allow_absolute_paths: false
+    allow_symlinks: true
+    allowed_extensions: [".txt", ".md", ".go"]
+    blocked_extensions: [".exe", ".bat"]
+  max_file_size: 10485760  # 10MB
+  allowed_hosts: ["localhost", "127.0.0.1"]
+  enable_sandbox: false
+
+ui:
+  theme: "default"
+  default_expanded: false
+  show_timestamps: true
+  auto_scroll: true
+  max_history_size: 1000
+
+tools:
+  default_timeout: "30s"
+  max_concurrent: 5
+  enable_builtins: true
+  custom_tools_paths: []

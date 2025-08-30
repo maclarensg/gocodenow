@@ -1,0 +1,811 @@
+{
+  "demos": {
+    "file_search": {
+      "execution_time": "1.04341ms",
+      "options": {
+        "case_sensitive": false,
+        "exclude": null,
+        "file_types": null,
+        "include_hidden": false,
+        "max_results": 5,
+        "prefer_recent": true,
+        "score_threshold": 0.3
+      },
+      "query": "main",
+      "results": [
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/context-test/main.go",
+          "relative_path": "cmd/context-test/main.go",
+          "name": "main.go",
+          "directory": "cmd/context-test",
+          "extension": ".go",
+          "language": "Go",
+          "size": 3797,
+          "mod_time": "2025-08-30T19:32:32.75156457+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/gocodenow/main.go",
+          "relative_path": "cmd/gocodenow/main.go",
+          "name": "main.go",
+          "directory": "cmd/gocodenow",
+          "extension": ".go",
+          "language": "Go",
+          "size": 1632,
+          "mod_time": "2025-08-30T10:42:30.537798769+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/search-demo/main.go",
+          "relative_path": "cmd/search-demo/main.go",
+          "name": "main.go",
+          "directory": "cmd/search-demo",
+          "extension": ".go",
+          "language": "Go",
+          "size": 5398,
+          "mod_time": "2025-08-30T19:49:06.795883386+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/test-db/main.go",
+          "relative_path": "cmd/test-db/main.go",
+          "name": "main.go",
+          "directory": "cmd/test-db",
+          "extension": ".go",
+          "language": "Go",
+          "size": 333,
+          "mod_time": "2025-08-30T01:21:05.591394872+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/internal/storage/migrations.go",
+          "relative_path": "internal/storage/migrations.go",
+          "name": "migrations.go",
+          "directory": "internal/storage",
+          "extension": ".go",
+          "language": "Go",
+          "size": 6242,
+          "mod_time": "2025-08-30T01:32:40.843560712+08:00",
+          "score": 0.6076923076923076,
+          "match_positions": [
+            0,
+            4,
+            6,
+            8
+          ],
+          "score_breakdown": {
+            "base_score": 0.3576923076923077,
+            "name_bonus": 0,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 0.6076923076923076
+          }
+        }
+      ],
+      "search_path": "/home/gavinyap/Workspace/gocodenow",
+      "statistics": {
+        "files_scanned": 227,
+        "files_matched": 7,
+        "files_filtered": 112,
+        "search_duration": 0,
+        "language_stats": {
+          "Go": 7
+        },
+        "average_score": 0.9215384615384614,
+        "score_distribution": {
+          "excellent (0.9-1.0)": 4,
+          "fair (0.5-0.7)": 1
+        }
+      },
+      "total_matches": 5
+    },
+    "find_in_files": {
+      "execution_time": "1.04341ms",
+      "options": {
+        "case_sensitive": false,
+        "exclude": null,
+        "file_types": null,
+        "include_hidden": false,
+        "max_results": 5,
+        "prefer_recent": true,
+        "score_threshold": 0.3
+      },
+      "query": "main",
+      "results": [
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/context-test/main.go",
+          "relative_path": "cmd/context-test/main.go",
+          "name": "main.go",
+          "directory": "cmd/context-test",
+          "extension": ".go",
+          "language": "Go",
+          "size": 3797,
+          "mod_time": "2025-08-30T19:32:32.75156457+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/gocodenow/main.go",
+          "relative_path": "cmd/gocodenow/main.go",
+          "name": "main.go",
+          "directory": "cmd/gocodenow",
+          "extension": ".go",
+          "language": "Go",
+          "size": 1632,
+          "mod_time": "2025-08-30T10:42:30.537798769+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/search-demo/main.go",
+          "relative_path": "cmd/search-demo/main.go",
+          "name": "main.go",
+          "directory": "cmd/search-demo",
+          "extension": ".go",
+          "language": "Go",
+          "size": 5398,
+          "mod_time": "2025-08-30T19:49:06.795883386+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/test-db/main.go",
+          "relative_path": "cmd/test-db/main.go",
+          "name": "main.go",
+          "directory": "cmd/test-db",
+          "extension": ".go",
+          "language": "Go",
+          "size": 333,
+          "mod_time": "2025-08-30T01:21:05.591394872+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/internal/storage/migrations.go",
+          "relative_path": "internal/storage/migrations.go",
+          "name": "migrations.go",
+          "directory": "internal/storage",
+          "extension": ".go",
+          "language": "Go",
+          "size": 6242,
+          "mod_time": "2025-08-30T01:32:40.843560712+08:00",
+          "score": 0.6076923076923076,
+          "match_positions": [
+            0,
+            4,
+            6,
+            8
+          ],
+          "score_breakdown": {
+            "base_score": 0.3576923076923077,
+            "name_bonus": 0,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 0.6076923076923076
+          }
+        }
+      ],
+      "search_path": "/home/gavinyap/Workspace/gocodenow",
+      "statistics": {
+        "files_scanned": 227,
+        "files_matched": 7,
+        "files_filtered": 112,
+        "search_duration": 0,
+        "language_stats": {
+          "Go": 7
+        },
+        "average_score": 0.9215384615384614,
+        "score_distribution": {
+          "excellent (0.9-1.0)": 4,
+          "fair (0.5-0.7)": 1
+        }
+      },
+      "total_matches": 5
+    },
+    "fuzzy_find": {
+      "execution_time": "1.04341ms",
+      "options": {
+        "case_sensitive": false,
+        "exclude": null,
+        "file_types": null,
+        "include_hidden": false,
+        "max_results": 5,
+        "prefer_recent": true,
+        "score_threshold": 0.3
+      },
+      "query": "main",
+      "results": [
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/context-test/main.go",
+          "relative_path": "cmd/context-test/main.go",
+          "name": "main.go",
+          "directory": "cmd/context-test",
+          "extension": ".go",
+          "language": "Go",
+          "size": 3797,
+          "mod_time": "2025-08-30T19:32:32.75156457+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/gocodenow/main.go",
+          "relative_path": "cmd/gocodenow/main.go",
+          "name": "main.go",
+          "directory": "cmd/gocodenow",
+          "extension": ".go",
+          "language": "Go",
+          "size": 1632,
+          "mod_time": "2025-08-30T10:42:30.537798769+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/search-demo/main.go",
+          "relative_path": "cmd/search-demo/main.go",
+          "name": "main.go",
+          "directory": "cmd/search-demo",
+          "extension": ".go",
+          "language": "Go",
+          "size": 5398,
+          "mod_time": "2025-08-30T19:49:06.795883386+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/test-db/main.go",
+          "relative_path": "cmd/test-db/main.go",
+          "name": "main.go",
+          "directory": "cmd/test-db",
+          "extension": ".go",
+          "language": "Go",
+          "size": 333,
+          "mod_time": "2025-08-30T01:21:05.591394872+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/internal/storage/migrations.go",
+          "relative_path": "internal/storage/migrations.go",
+          "name": "migrations.go",
+          "directory": "internal/storage",
+          "extension": ".go",
+          "language": "Go",
+          "size": 6242,
+          "mod_time": "2025-08-30T01:32:40.843560712+08:00",
+          "score": 0.6076923076923076,
+          "match_positions": [
+            0,
+            4,
+            6,
+            8
+          ],
+          "score_breakdown": {
+            "base_score": 0.3576923076923077,
+            "name_bonus": 0,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 0.6076923076923076
+          }
+        }
+      ],
+      "search_path": "/home/gavinyap/Workspace/gocodenow",
+      "statistics": {
+        "files_scanned": 227,
+        "files_matched": 7,
+        "files_filtered": 112,
+        "search_duration": 0,
+        "language_stats": {
+          "Go": 7
+        },
+        "average_score": 0.9215384615384614,
+        "score_distribution": {
+          "excellent (0.9-1.0)": 4,
+          "fair (0.5-0.7)": 1
+        }
+      },
+      "total_matches": 5
+    },
+    "grep": {
+      "execution_time": "1.04341ms",
+      "options": {
+        "case_sensitive": false,
+        "exclude": null,
+        "file_types": null,
+        "include_hidden": false,
+        "max_results": 5,
+        "prefer_recent": true,
+        "score_threshold": 0.3
+      },
+      "query": "main",
+      "results": [
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/context-test/main.go",
+          "relative_path": "cmd/context-test/main.go",
+          "name": "main.go",
+          "directory": "cmd/context-test",
+          "extension": ".go",
+          "language": "Go",
+          "size": 3797,
+          "mod_time": "2025-08-30T19:32:32.75156457+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/gocodenow/main.go",
+          "relative_path": "cmd/gocodenow/main.go",
+          "name": "main.go",
+          "directory": "cmd/gocodenow",
+          "extension": ".go",
+          "language": "Go",
+          "size": 1632,
+          "mod_time": "2025-08-30T10:42:30.537798769+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/search-demo/main.go",
+          "relative_path": "cmd/search-demo/main.go",
+          "name": "main.go",
+          "directory": "cmd/search-demo",
+          "extension": ".go",
+          "language": "Go",
+          "size": 5398,
+          "mod_time": "2025-08-30T19:49:06.795883386+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/test-db/main.go",
+          "relative_path": "cmd/test-db/main.go",
+          "name": "main.go",
+          "directory": "cmd/test-db",
+          "extension": ".go",
+          "language": "Go",
+          "size": 333,
+          "mod_time": "2025-08-30T01:21:05.591394872+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/internal/storage/migrations.go",
+          "relative_path": "internal/storage/migrations.go",
+          "name": "migrations.go",
+          "directory": "internal/storage",
+          "extension": ".go",
+          "language": "Go",
+          "size": 6242,
+          "mod_time": "2025-08-30T01:32:40.843560712+08:00",
+          "score": 0.6076923076923076,
+          "match_positions": [
+            0,
+            4,
+            6,
+            8
+          ],
+          "score_breakdown": {
+            "base_score": 0.3576923076923077,
+            "name_bonus": 0,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 0.6076923076923076
+          }
+        }
+      ],
+      "search_path": "/home/gavinyap/Workspace/gocodenow",
+      "statistics": {
+        "files_scanned": 227,
+        "files_matched": 7,
+        "files_filtered": 112,
+        "search_duration": 0,
+        "language_stats": {
+          "Go": 7
+        },
+        "average_score": 0.9215384615384614,
+        "score_distribution": {
+          "excellent (0.9-1.0)": 4,
+          "fair (0.5-0.7)": 1
+        }
+      },
+      "total_matches": 5
+    },
+    "tree": {
+      "execution_time": "1.04341ms",
+      "options": {
+        "case_sensitive": false,
+        "exclude": null,
+        "file_types": null,
+        "include_hidden": false,
+        "max_results": 5,
+        "prefer_recent": true,
+        "score_threshold": 0.3
+      },
+      "query": "main",
+      "results": [
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/context-test/main.go",
+          "relative_path": "cmd/context-test/main.go",
+          "name": "main.go",
+          "directory": "cmd/context-test",
+          "extension": ".go",
+          "language": "Go",
+          "size": 3797,
+          "mod_time": "2025-08-30T19:32:32.75156457+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/gocodenow/main.go",
+          "relative_path": "cmd/gocodenow/main.go",
+          "name": "main.go",
+          "directory": "cmd/gocodenow",
+          "extension": ".go",
+          "language": "Go",
+          "size": 1632,
+          "mod_time": "2025-08-30T10:42:30.537798769+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/search-demo/main.go",
+          "relative_path": "cmd/search-demo/main.go",
+          "name": "main.go",
+          "directory": "cmd/search-demo",
+          "extension": ".go",
+          "language": "Go",
+          "size": 5398,
+          "mod_time": "2025-08-30T19:49:06.795883386+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/cmd/test-db/main.go",
+          "relative_path": "cmd/test-db/main.go",
+          "name": "main.go",
+          "directory": "cmd/test-db",
+          "extension": ".go",
+          "language": "Go",
+          "size": 333,
+          "mod_time": "2025-08-30T01:21:05.591394872+08:00",
+          "score": 1,
+          "match_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "score_breakdown": {
+            "base_score": 1,
+            "name_bonus": 0.2,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 1
+          }
+        },
+        {
+          "file": "/home/gavinyap/Workspace/gocodenow/internal/storage/migrations.go",
+          "relative_path": "internal/storage/migrations.go",
+          "name": "migrations.go",
+          "directory": "internal/storage",
+          "extension": ".go",
+          "language": "Go",
+          "size": 6242,
+          "mod_time": "2025-08-30T01:32:40.843560712+08:00",
+          "score": 0.6076923076923076,
+          "match_positions": [
+            0,
+            4,
+            6,
+            8
+          ],
+          "score_breakdown": {
+            "base_score": 0.3576923076923077,
+            "name_bonus": 0,
+            "extension_bonus": 0,
+            "recency_bonus": 0.15,
+            "language_bonus": 0.1,
+            "directory_penalty": 0,
+            "final_score": 0.6076923076923076
+          }
+        }
+      ],
+      "search_path": "/home/gavinyap/Workspace/gocodenow",
+      "statistics": {
+        "files_scanned": 227,
+        "files_matched": 7,
+        "files_filtered": 112,
+        "search_duration": 0,
+        "language_stats": {
+          "Go": 7
+        },
+        "average_score": 0.9215384615384614,
+        "score_distribution": {
+          "excellent (0.9-1.0)": 4,
+          "fair (0.5-0.7)": 1
+        }
+      },
+      "total_matches": 5
+    }
+  },
+  "search_demo": "Advanced Search \u0026 Navigation Tools",
+  "workspace_path": "/home/gavinyap/Workspace/gocodenow"
+}

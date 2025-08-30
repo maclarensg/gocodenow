@@ -1,0 +1,81 @@
+version: '3'
+
+tasks:
+  default:
+    desc: List all available tasks
+    cmds:
+      - task --list
+    silent: true
+
+  test:
+    desc: Run all Go tests
+    cmds:
+      - go test ./...
+
+  build:
+    desc: Build Go binary
+    cmds:
+      - go build -o gocodenow ./cmd/gocodenow
+
+  itest:
+    desc: Run integration test suite
+    cmds:
+      - task: itest:check-server
+      - task: itest:run-tests
+
+  # Integration test subtasks
+  itest:check-server:
+    desc: Check if LLM server is reachable
+    internal: true
+    vars:
+      ENDPOINT: '{{.ENDPOINT | default "http://192.168.86.20:1234"}}'
+    cmds:
+      - |
+        echo "Checking LLM server at {{.ENDPOINT}}/v1..."
+        if ! curl -s --connect-timeout 5 "{{.ENDPOINT}}/v1/models" > /dev/null; then
+          echo "❌ LLM server is not reachable at {{.ENDPOINT}}/v1"
+          echo "Please ensure your LLM server is running"
+          exit 1
+        fi
+        echo "✅ LLM server is reachable"
+
+  itest:run-tests:
+    desc: Execute integration tests
+    internal: true
+    env:
+      RUN_LLM_INTEGRATION_TESTS: true
+      LLM_TEST_ENDPOINT: '{{.ENDPOINT | default "http://192.168.86.20:1234"}}'
+      LLM_TEST_MODEL: '{{.MODEL | default "qwen2.5-coder-7b-instruct"}}'
+      LLM_TEST_TOKEN: '{{.TOKEN}}'
+    cmds:
+      - go test -v ./internal/llm -run Integration
+
+  itest:specific:
+    desc: Run specific integration test
+    internal: true
+    vars:
+      TEST: '{{.TEST | default "SimpleChatCompletion"}}'
+    env:
+      RUN_LLM_INTEGRATION_TESTS: true
+      LLM_TEST_ENDPOINT: '{{.ENDPOINT | default "http://192.168.86.20:1234"}}'
+      LLM_TEST_MODEL: '{{.MODEL | default "qwen2.5-coder-7b-instruct"}}'
+      LLM_TEST_TOKEN: '{{.TOKEN}}'
+    cmds:
+      - go test -v ./internal/llm -run "TestIntegration_{{.TEST}}"
+
+  itest:benchmark:
+    desc: Run integration benchmarks
+    internal: true
+    env:
+      RUN_LLM_INTEGRATION_TESTS: true
+      LLM_TEST_ENDPOINT: '{{.ENDPOINT | default "http://192.168.86.20:1234"}}'
+      LLM_TEST_MODEL: '{{.MODEL | default "qwen2.5-coder-7b-instruct"}}'
+      LLM_TEST_TOKEN: '{{.TOKEN}}'
+    cmds:
+      - go test -bench=BenchmarkIntegration -v ./internal/llm
+
+  itest:check-only:
+    desc: Only check server connectivity
+    internal: true
+    cmds:
+      - task: itest:check-server

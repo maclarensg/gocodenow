@@ -1,0 +1,10 @@
+llm:
+  endpoint: "http://test-server:8080/v1"
+  model: "custom-model"
+
+storage:
+  cache_size: 200
+
+ui:
+  theme: "dark"
+  show_timestamps: false

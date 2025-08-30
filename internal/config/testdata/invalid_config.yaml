@@ -1,0 +1,27 @@
+llm:
+  endpoint: ""  # Invalid: empty endpoint
+  model: ""     # Invalid: empty model  
+  timeout: -5   # Invalid: negative timeout
+  max_retries: 15  # Invalid: too many retries
+
+storage:
+  database_path: ""  # Invalid: empty database path
+  cache_size: -1     # Invalid: negative cache size
+  auto_save_freq: "1s"  # Invalid: too short
+  max_memory_mb: 20000  # Invalid: too much memory
+
+security:
+  file_operations:
+    allowed_paths: [""]  # Invalid: empty path
+    blocked_paths: [""]  # Invalid: empty path
+    allowed_extensions: ["txt"]  # Invalid: no dot prefix
+    blocked_extensions: ["exe"]  # Invalid: no dot prefix
+  max_file_size: -1  # Invalid: negative file size
+
+ui:
+  theme: "invalid_theme"  # Invalid: unknown theme
+  max_history_size: -1    # Invalid: negative history size
+
+tools:
+  default_timeout: "0s"   # Invalid: zero timeout
+  max_concurrent: -1      # Invalid: negative concurrency
