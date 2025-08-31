@@ -207,6 +207,13 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 		
+		// Handle help scrolling first if help is visible
+		if m.shortcutManager != nil && m.shortcutManager.IsHelpVisible() {
+			if m.shortcutManager.HandleHelpKeyMsg(msg) {
+				return m, nil // Help system handled the key
+			}
+		}
+		
 		// Use shortcut manager for key handling
 		context := m.getCurrentContext()
 		action := m.shortcutManager.HandleKeyMsg(msg, context)
@@ -553,10 +560,7 @@ func (m *Model) handleShortcutAction(action string, msg tea.KeyMsg) (tea.Model, 
 			m.textarea.Blur()
 		} else {
 			m.textarea.Focus()
-			// Trigger input help tooltip on first focus
-			if m.tooltipManager != nil {
-				m.tooltipManager.TriggerTooltip("first_input_focus")
-			}
+			// Input help tooltip removed per user request
 		}
 		m.updateViewportContent()
 		return m, nil

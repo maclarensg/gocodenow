@@ -93,8 +93,8 @@ func (r *Renderer) renderConversations(model *Model, maxHeight int) string {
 
 	blockStyle := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		Padding(0, 1).
-		Width(r.width - 4)
+		Padding(0, 1)
+		// Remove fixed Width - let content flow naturally
 
 	selectedStyle := blockStyle.Copy().
 		BorderForeground(lipgloss.Color("4"))
@@ -152,40 +152,31 @@ func (r *Renderer) renderConversationBlock(conv types.ConversationBlock, isSelec
 	
 
 	if conv.Expanded {
-		// Expanded view with enhanced tool execution display
-		title := fmt.Sprintf("%s User: %s", expandIcon, r.truncateText(userInput, 1))
-		statusIcon := r.getStatusIcon(conv.Status)
+		// Build each section independently using new section builders
+		headerSection := r.buildHeaderSection(conv, userInput)
+		requestSection := r.buildRequestSection(conv, userInput)
+		responseSection := r.buildResponseSection(conv, llmResponse)
 		
-		s.WriteString(titleStyle.Render(title))
-		s.WriteString(timeStyle.Render(fmt.Sprintf(" [%s] %s", timeStr, statusIcon)))
-		s.WriteString("\n\n")
+		// Build sections array
+		sections := []string{headerSection, requestSection}
 		
-		// REQUEST DETAILS section
-		requestBoxStyle := lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("6")).
-			Padding(0, 1).
-			Width(r.width - 12)
-		
-		requestTitle := lipgloss.NewStyle().Bold(true).Render("┌─ REQUEST DETAILS & PERFORMANCE")
-		requestContent := r.buildPerformanceMetrics(conv, userInput)
-		
-		s.WriteString("   " + requestBoxStyle.Render(requestTitle + "\n" + requestContent))
-		s.WriteString("\n\n")
-
-		// TOOL EXECUTION HISTORY section (comprehensive execution timeline)
+		// Optional tool section
 		if len(conv.ToolCalls) > 0 {
-			s.WriteString(r.renderToolExecutionHistorySection(conv, requestBoxStyle))
-			s.WriteString("\n\n")
+			toolSection := r.buildToolSection(conv)
+			if toolSection != "" {
+				sections = append(sections, toolSection)
+			}
 		} else if len(conv.Tools) > 0 {
 			// Legacy support for old Tools field
-			s.WriteString(r.renderLegacyActionsSection(conv, requestBoxStyle))
-			s.WriteString("\n\n")
+			legacySection := r.buildLegacyToolSection(conv)
+			sections = append(sections, legacySection)
 		}
-
-		// RESPONSE section
-		responseTitle := lipgloss.NewStyle().Bold(true).Render("┌─ RESPONSE")
-		s.WriteString("   " + requestBoxStyle.Render(responseTitle + "\n" + llmResponse))
+		
+		// Add response section
+		sections = append(sections, responseSection)
+		
+		// Let lipgloss handle layout with proper spacing
+		return lipgloss.JoinVertical(lipgloss.Left, sections...)
 	} else {
 		// Collapsed view with status indicator
 		inputPreview := r.truncateText(userInput, 3)
@@ -255,27 +246,10 @@ func (r *Renderer) renderInput(model *Model) string {
 	promptStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("8")).
 		Width(r.width).
-		Align(lipgloss.Right)
+		Align(lipgloss.Left)
 
-	// Get contextual help from shortcut manager
-	var instructionText string
-	if model.shortcutManager != nil {
-		context := "global"
-		if model.textarea.Focused() {
-			context = "input"
-		} else {
-			context = "conversation"
-		}
-		instructionText = model.shortcutManager.GetQuickHelp(context)
-	} else {
-		// Fallback to original instruction text
-		instructionText = "[Send: Enter, New line: Ctrl+Enter, Tab: Focus, ↑↓: Navigate, Home/End: Top/Bottom]"
-	}
-	
-	// Truncate instruction text if it's too long for the screen
-	if len(instructionText) > r.width {
-		instructionText = instructionText[:r.width-3] + "..."
-	}
+	// Simple, clean instruction text that won't truncate
+	instructionText := "Enter: Send • Esc twice: Cancel • Help: F1"
 	
 	s.WriteString(promptStyle.Render(instructionText))
 
@@ -902,6 +876,150 @@ func (r *Renderer) countFileOperations(conv types.ConversationBlock, result *typ
 		}
 	}
 	return count
+}
+
+// buildHeaderSection creates the header section for expanded conversations
+func (r *Renderer) buildHeaderSection(conv types.ConversationBlock, userInput string) string {
+	timeStr := conv.Timestamp.Format("15:04")
+	expandIcon := "▼"
+	statusIcon := r.getStatusIcon(conv.Status)
+	
+	titleStyle := lipgloss.NewStyle().Bold(true)
+	timeStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("8"))
+	
+	title := fmt.Sprintf("%s User: %s", expandIcon, r.truncateText(userInput, 1))
+	timeInfo := fmt.Sprintf(" [%s] %s", timeStr, statusIcon)
+	
+	return lipgloss.JoinHorizontal(
+		lipgloss.Top,
+		titleStyle.Render(title),
+		timeStyle.Render(timeInfo),
+	)
+}
+
+// buildRequestSection creates the REQUEST DETAILS & PERFORMANCE section
+func (r *Renderer) buildRequestSection(conv types.ConversationBlock, userInput string) string {
+	// Define consistent inner box style
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("6")).
+		Padding(0, 1).
+		Width(r.width - 8) // Let outer container handle final width
+	
+	title := lipgloss.NewStyle().Bold(true).Render("┌─ REQUEST DETAILS & PERFORMANCE")
+	content := r.buildPerformanceMetrics(conv, userInput)
+	
+	return boxStyle.Render(title + "\n" + content)
+}
+
+// buildResponseSection creates the RESPONSE section
+func (r *Renderer) buildResponseSection(conv types.ConversationBlock, llmResponse string) string {
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("6")).
+		Padding(0, 1).
+		Width(r.width - 8)
+		
+	title := lipgloss.NewStyle().Bold(true).Render("┌─ RESPONSE")
+	
+	return boxStyle.Render(title + "\n" + llmResponse)
+}
+
+// buildToolSection creates the TOOL EXECUTION section (optional)
+func (r *Renderer) buildToolSection(conv types.ConversationBlock) string {
+	if len(conv.ToolCalls) == 0 {
+		return ""
+	}
+	
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("6")).
+		Padding(0, 1).
+		Width(r.width - 8)
+	
+	// Reuse existing tool rendering logic but return styled box
+	return boxStyle.Render(r.renderToolExecutionContent(conv))
+}
+
+// renderToolExecutionContent extracts the content logic from existing tool rendering
+func (r *Renderer) renderToolExecutionContent(conv types.ConversationBlock) string {
+	toolsTitle := lipgloss.NewStyle().Bold(true).Render("┌─ TOOL EXECUTION HISTORY")
+	var toolsContent strings.Builder
+	
+	// Create a timeline of all tool executions with detailed history
+	for i, toolCall := range conv.ToolCalls {
+		// Find corresponding result
+		var result *types.ToolResult
+		for j := range conv.ToolResults {
+			if conv.ToolResults[j].ToolCallID == toolCall.ID {
+				result = &conv.ToolResults[j]
+				break
+			}
+		}
+		
+		// Create timeline entry header
+		timelineIcon := "├"
+		if i == len(conv.ToolCalls)-1 {
+			timelineIcon = "└"
+		}
+		
+		startTime := toolCall.Timestamp.Format("15:04:05")
+		toolsContent.WriteString(fmt.Sprintf("%s─ [%s] %s\n", timelineIcon, startTime, toolCall.ToolName))
+		
+		// Show tool parameters
+		if len(toolCall.Parameters) > 0 {
+			paramsStr := r.formatToolParameters(toolCall.Parameters)
+			toolsContent.WriteString(fmt.Sprintf("│   Parameters: %s\n", paramsStr))
+		}
+		
+		// Show execution status and timeline
+		if result == nil {
+			// Tool still running
+			toolsContent.WriteString("│   Status: ⚡ Running...\n")
+			toolsContent.WriteString("│   Started: " + startTime + "\n")
+		} else {
+			// Tool completed - show full history
+			r.renderToolExecutionDetails(&toolsContent, toolCall, result)
+		}
+		
+		// Show file operations related to this tool
+		fileOps := r.getFileOperationsForTool(conv, result)
+		if len(fileOps) > 0 {
+			toolsContent.WriteString("│   File Operations:\n")
+			for _, fileOp := range fileOps {
+				opIcon := r.getFileOperationIcon(fileOp)
+				toolsContent.WriteString(fmt.Sprintf("│     %s %s: %s\n", 
+					opIcon, fileOp.OperationType, fileOp.FilePath))
+			}
+		}
+		
+		if i < len(conv.ToolCalls)-1 {
+			toolsContent.WriteString("│\n")
+		}
+	}
+	
+	return toolsTitle + "\n" + toolsContent.String()
+}
+
+// buildLegacyToolSection creates the legacy tool section for backward compatibility
+func (r *Renderer) buildLegacyToolSection(conv types.ConversationBlock) string {
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("6")).
+		Padding(0, 1).
+		Width(r.width - 8)
+	
+	actionsTitle := lipgloss.NewStyle().Bold(true).Render("┌─ ASSISTANT ACTIONS")
+	var actionsContent strings.Builder
+	
+	for i, tool := range conv.Tools {
+		actionsContent.WriteString(fmt.Sprintf("[%d] %s\n", i+1, tool))
+	}
+	if len(conv.Files) > 0 {
+		actionsContent.WriteString("Files Modified: " + strings.Join(conv.Files, ", "))
+	}
+	
+	return boxStyle.Render(actionsTitle + "\n" + actionsContent.String())
 }
 
 // Utility functions

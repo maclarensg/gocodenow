@@ -93,17 +93,6 @@ func (tm *TooltipManager) initializeDefaultTooltips() {
 			ShowOnce: true,
 		},
 		{
-			ID:       "input_help",
-			Title:    "Input Tips",
-			Content:  "Press Enter to send your message, Ctrl+J for new lines, Ctrl+U to clear input. You can paste multi-line code and text directly.",
-			Type:     TooltipTypeHint,
-			Position: TooltipPositionTop,
-			Duration: 6 * time.Second,
-			Context:  "input",
-			Trigger:  "first_input_focus",
-			ShowOnce: true,
-		},
-		{
 			ID:       "confirmation_help",
 			Title:    "Confirmation Dialog",
 			Content:  "Use y/n for quick choices, arrow keys to navigate, Enter to confirm, Esc to cancel. Red borders indicate destructive actions.",

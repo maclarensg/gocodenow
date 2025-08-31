@@ -69,9 +69,15 @@ func (p *OpenAIProvider) ID() string {
 
 // CreateClient creates a new OpenAI client
 func (p *OpenAIProvider) CreateClient(config *config.LLMConfig) (Client, error) {
+	// For streaming, we need much longer timeouts to allow complete responses
+	streamingTimeout := time.Duration(config.Timeout) * time.Second
+	if streamingTimeout < 5*time.Minute {
+		streamingTimeout = 5 * time.Minute // Minimum 5 minutes for streaming
+	}
+	
 	client := &OpenAIClient{
 		config:     config,
-		httpClient: &http.Client{Timeout: time.Duration(config.Timeout) * time.Second},
+		httpClient: &http.Client{Timeout: streamingTimeout},
 		baseURL:    strings.TrimSuffix(config.Endpoint, "/"),
 		headers: map[string]string{
 			"Content-Type": "application/json",
@@ -280,14 +286,22 @@ func (c *OpenAIClient) handleStreamResponse(ctx context.Context, body io.ReadClo
 	llmLogger.WithField("total_lines", lineCount).Debug("Stream scanner finished")
 	
 	if err := scanner.Err(); err != nil {
+		llmLogger.WithFields(logrus.Fields{
+			"error": err.Error(),
+			"position": position,
+			"total_lines": lineCount,
+		}).Error("Stream scanner error - connection may have been interrupted")
+		
 		select {
 		case eventChan <- &StreamEvent{
 			Type:      "error",
-			Error:     NewStreamError("failed to read stream", position, "", err),
+			Error:     NewStreamError("stream connection interrupted", position, "", err),
 			Timestamp: time.Now(),
 		}:
 		case <-ctx.Done():
 		}
+	} else {
+		llmLogger.WithField("total_lines", lineCount).Info("Stream completed successfully")
 	}
 }
 
@@ -512,9 +526,15 @@ func (p *AnthropicProvider) ID() string {
 
 // CreateClient creates a new Anthropic client
 func (p *AnthropicProvider) CreateClient(config *config.LLMConfig) (Client, error) {
+	// For streaming, we need much longer timeouts to allow complete responses
+	streamingTimeout := time.Duration(config.Timeout) * time.Second
+	if streamingTimeout < 5*time.Minute {
+		streamingTimeout = 5 * time.Minute // Minimum 5 minutes for streaming
+	}
+	
 	client := &AnthropicClient{
 		config:     config,
-		httpClient: &http.Client{Timeout: time.Duration(config.Timeout) * time.Second},
+		httpClient: &http.Client{Timeout: streamingTimeout},
 		baseURL:    strings.TrimSuffix(config.Endpoint, "/"),
 		headers: map[string]string{
 			"Content-Type":      "application/json",
@@ -966,10 +986,16 @@ func (p *LocalProvider) ID() string {
 
 // CreateClient creates a new local client (reuses OpenAI client)
 func (p *LocalProvider) CreateClient(config *config.LLMConfig) (Client, error) {
+	// For streaming, we need much longer timeouts to allow complete responses
+	streamingTimeout := time.Duration(config.Timeout) * time.Second
+	if streamingTimeout < 5*time.Minute {
+		streamingTimeout = 5 * time.Minute // Minimum 5 minutes for streaming
+	}
+	
 	// Local providers use the same API format as OpenAI
 	client := &OpenAIClient{
 		config:     config,
-		httpClient: &http.Client{Timeout: time.Duration(config.Timeout) * time.Second},
+		httpClient: &http.Client{Timeout: streamingTimeout},
 		baseURL:    strings.TrimSuffix(config.Endpoint, "/"),
 		headers: map[string]string{
 			"Content-Type": "application/json",

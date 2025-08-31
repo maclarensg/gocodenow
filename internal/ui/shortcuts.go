@@ -22,6 +22,7 @@ type ShortcutManager struct {
 	bindings    []KeyBinding
 	helpVisible bool
 	keyMap      GlobalKeyMap
+	helpScroll  int // Current scroll position in help dialog
 }
 
 // GlobalKeyMap defines all key bindings for the application
@@ -162,8 +163,8 @@ func DefaultGlobalKeyMap() GlobalKeyMap {
 		
 		// System
 		ShowHelp: key.NewBinding(
-			key.WithKeys("?", "h"),
-			key.WithHelp("?/h", "show help"),
+			key.WithKeys(), // No keys - only F1 should toggle help
+			key.WithHelp("F1", "show help"),
 		),
 		ShowSettings: key.NewBinding(
 			key.WithKeys("ctrl+comma", "s"),
@@ -263,7 +264,7 @@ func (sm *ShortcutManager) initializeDefaultBindings() {
 		{"Ctrl+Z", "Undo last action", "undo", "global", "tools"},
 		
 		// System
-		{"?, h", "Show/hide help", "show_help", "global", "system"},
+		{"F1", "Show/hide help", "show_help", "global", "system"},
 		{"Ctrl+,", "Open settings", "show_settings", "global", "system"},
 		{"q", "Quit application", "quit", "global", "system"},
 		{"Ctrl+Q", "Force quit", "force_quit", "global", "system"},
@@ -301,6 +302,43 @@ func (sm *ShortcutManager) ShowHelp() {
 // HideHelp hides the help panel
 func (sm *ShortcutManager) HideHelp() {
 	sm.helpVisible = false
+	sm.helpScroll = 0 // Reset scroll when hiding
+}
+
+// ScrollHelpUp scrolls the help panel up
+func (sm *ShortcutManager) ScrollHelpUp() {
+	if sm.helpScroll > 0 {
+		sm.helpScroll--
+	}
+}
+
+// ScrollHelpDown scrolls the help panel down
+func (sm *ShortcutManager) ScrollHelpDown() {
+	sm.helpScroll++
+}
+
+// HandleHelpKeyMsg handles keys when help is visible
+func (sm *ShortcutManager) HandleHelpKeyMsg(msg tea.KeyMsg) bool {
+	if !sm.helpVisible {
+		return false
+	}
+	
+	switch msg.String() {
+	case "f1":
+		sm.ToggleHelp()
+		return true
+	case "up", "k":
+		sm.ScrollHelpUp()
+		return true
+	case "down", "j":
+		sm.ScrollHelpDown()
+		return true
+	case "home":
+		sm.helpScroll = 0
+		return true
+	default:
+		return false
+	}
 }
 
 // HandleKeyMsg processes key messages and returns the corresponding action
@@ -407,7 +445,7 @@ func (sm *ShortcutManager) handleInputShortcuts(msg tea.KeyMsg) string {
 	return ""
 }
 
-// RenderHelp renders the help panel
+// RenderHelp renders the scrollable help panel
 func (sm *ShortcutManager) RenderHelp(width, height int) string {
 	if !sm.helpVisible {
 		return ""
@@ -440,11 +478,12 @@ func (sm *ShortcutManager) RenderHelp(width, height int) string {
 		Width(width - 4).
 		Height(height - 4)
 	
-	var content strings.Builder
+	// Build all content lines first
+	var allLines []string
 	
 	// Title
-	content.WriteString(titleStyle.Render("🚀 gocodenow - Keyboard Shortcuts"))
-	content.WriteString("\n")
+	allLines = append(allLines, titleStyle.Render("🚀 gocodenow - Keyboard Shortcuts"))
+	allLines = append(allLines, "")
 	
 	// Group bindings by category
 	categories := map[string][]KeyBinding{
@@ -472,28 +511,77 @@ func (sm *ShortcutManager) RenderHelp(width, height int) string {
 			continue
 		}
 		
-		content.WriteString(categoryStyle.Render(categoryTitles[catName]))
-		content.WriteString("\n")
+		allLines = append(allLines, categoryStyle.Render(categoryTitles[catName]))
+		allLines = append(allLines, "")
 		
 		for _, binding := range categories[catName] {
 			keyText := keyStyle.Render(binding.Keys)
 			descText := descStyle.Render(binding.Description)
-			content.WriteString(keyText + " " + descText)
-			content.WriteString("\n")
+			allLines = append(allLines, keyText + " " + descText)
 		}
+		allLines = append(allLines, "")
 	}
 	
-	// Footer
-	content.WriteString("\n")
+	// Footer instructions
+	allLines = append(allLines, "")
 	footerStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("#666666")).
 		Italic(true).
 		Align(lipgloss.Center).
 		Width(width - 6)
-	content.WriteString(footerStyle.Render("Press ? or F1 to close help • Press Esc to close any dialog"))
+	allLines = append(allLines, footerStyle.Render("↑↓/jk: Scroll • Home: Top • F1: Close"))
+	
+	// Calculate available content height (subtract border and padding)
+	availableHeight := height - 6 // border(2) + padding(2) + some margin(2)
+	
+	// Apply scrolling - determine which lines to show
+	startLine := sm.helpScroll
+	endLine := startLine + availableHeight
+	
+	// Clamp scroll position to valid range
+	if startLine < 0 {
+		startLine = 0
+		sm.helpScroll = 0
+	}
+	if startLine >= len(allLines) {
+		startLine = len(allLines) - 1
+		if startLine < 0 {
+			startLine = 0
+		}
+		sm.helpScroll = startLine
+	}
+	
+	// Get visible lines
+	var visibleLines []string
+	for i := startLine; i < endLine && i < len(allLines); i++ {
+		visibleLines = append(visibleLines, allLines[i])
+	}
+	
+	// Add scroll indicators if needed
+	if startLine > 0 {
+		scrollIndicator := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#666666")).
+			Italic(true).
+			Align(lipgloss.Center).
+			Width(width - 6)
+		visibleLines[0] = scrollIndicator.Render("... (scroll up for more) ...")
+	}
+	if endLine < len(allLines) {
+		scrollIndicator := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#666666")).
+			Italic(true).
+			Align(lipgloss.Center).
+			Width(width - 6)
+		if len(visibleLines) > 0 {
+			visibleLines[len(visibleLines)-1] = scrollIndicator.Render("... (scroll down for more) ...")
+		}
+	}
+	
+	// Join visible content
+	content := strings.Join(visibleLines, "\n")
 	
 	// Apply border
-	helpPanel := borderStyle.Render(content.String())
+	helpPanel := borderStyle.Render(content)
 	
 	// Center the help panel
 	return lipgloss.Place(width, height, lipgloss.Center, lipgloss.Center, helpPanel)

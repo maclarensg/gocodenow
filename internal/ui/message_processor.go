@@ -170,13 +170,19 @@ func (mp *MessageProcessor) streamProcessor(ctx context.Context, conversationID 
 	var toolCalls []llm.ToolCall
 	var tokenUsage llm.TokenUsage
 	
+	mpLogger.WithField("conversation_id", conversationID).Debug("Starting stream processing")
+	
 	for {
 		select {
 		case <-ctx.Done():
-			mpLogger.WithError(ctx.Err()).Debug("Stream cancelled by context")
+			mpLogger.WithFields(logrus.Fields{
+				"conversation_id": conversationID,
+				"error": ctx.Err(),
+				"response_length": len(completeResponse),
+			}).Error("Stream cancelled by context - this indicates a timeout or user cancellation")
 			return MessageProcessingErrorMsg{
 				ConversationID: conversationID,
-				Error:          ctx.Err(),
+				Error:          fmt.Errorf("streaming interrupted: %w", ctx.Err()),
 			}
 			
 		case event, ok := <-streamChan:
@@ -184,9 +190,20 @@ func (mp *MessageProcessor) streamProcessor(ctx context.Context, conversationID 
 				// Stream finished - process complete response
 				mpLogger.WithFields(logrus.Fields{
 					"conversation_id": conversationID,
-					"complete_response": completeResponse,
+					"complete_response_length": len(completeResponse),
 					"tool_calls_count": len(toolCalls),
-				}).Debug("Stream channel closed, processing completion")
+					"input_tokens": tokenUsage.PromptTokens,
+					"output_tokens": tokenUsage.CompletionTokens,
+				}).Info("Stream channel closed normally, processing completion")
+				
+				if len(completeResponse) == 0 && len(toolCalls) == 0 {
+					mpLogger.WithField("conversation_id", conversationID).Warn("Stream completed but no response content received")
+					return MessageProcessingErrorMsg{
+						ConversationID: conversationID,
+						Error:          fmt.Errorf("no response received from LLM - connection may have been terminated"),
+					}
+				}
+				
 				return mp.handleLLMResponseComplete(ctx, conversationID, completeResponse, toolCalls, tokenUsage)
 			}
 			

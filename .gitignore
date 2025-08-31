@@ -4,6 +4,6 @@ gocodenow
 !cmd/gocodenow
 tmp/*
 !tmp/.gitkeep
-
+*.log
 # Security sandbox temporary directories
 internal/security/tmp/*
