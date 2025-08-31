@@ -11,7 +11,7 @@ import (
 func TestDatabase() error {
 	// Create temporary database path
 	tmpDir := os.TempDir()
-	dbPath := filepath.Join(tmpDir, fmt.Sprintf("lmcodenow_test_%d.db", time.Now().UnixNano()))
+	dbPath := filepath.Join(tmpDir, fmt.Sprintf("gocodenow_test_%d.db", time.Now().UnixNano()))
 	
 	fmt.Printf("Creating test database at: %s\n", dbPath)
 

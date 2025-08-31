@@ -70,7 +70,7 @@ func TestConversationHistory_Integration_AddConversation(t *testing.T) {
 	userInput := "Hello, how are you?"
 	assistantResponse := "I'm doing well, thank you!"
 	
-	err := history.AddConversation(userInput, assistantResponse)
+	_, err := history.AddConversation(userInput, assistantResponse, types.StatusCompleted)
 	if err != nil {
 		t.Fatalf("AddConversation() error = %v", err)
 	}
@@ -116,7 +116,7 @@ func TestConversationHistory_Integration_MultipleConversations(t *testing.T) {
 	}
 
 	for _, conv := range conversations {
-		err := history.AddConversation(conv.userInput, conv.assistantResponse)
+		_, err := history.AddConversation(conv.userInput, conv.assistantResponse, types.StatusCompleted)
 		if err != nil {
 			t.Fatalf("AddConversation() error = %v", err)
 		}
@@ -151,7 +151,7 @@ func TestConversationHistory_Integration_Selection(t *testing.T) {
 
 	// Add conversations for selection testing
 	for i := 0; i < 5; i++ {
-		err := history.AddConversation(fmt.Sprintf("Input %d", i), fmt.Sprintf("Response %d", i))
+		_, err := history.AddConversation(fmt.Sprintf("Input %d", i), fmt.Sprintf("Response %d", i), types.StatusCompleted)
 		if err != nil {
 			t.Fatalf("AddConversation() error = %v", err)
 		}
@@ -196,7 +196,7 @@ func TestConversationHistory_Integration_ToggleExpanded(t *testing.T) {
 	defer cleanup()
 
 	// Add a conversation
-	err := history.AddConversation("Test input", "Test response")
+	_, err := history.AddConversation("Test input", "Test response", types.StatusCompleted)
 	if err != nil {
 		t.Fatalf("AddConversation() error = %v", err)
 	}
@@ -227,7 +227,7 @@ func TestConversationHistory_Integration_StatusManagement(t *testing.T) {
 	defer cleanup()
 
 	// Add a conversation
-	err := history.AddConversation("Test input", "Test response")
+	_, err := history.AddConversation("Test input", "Test response", types.StatusCompleted)
 	if err != nil {
 		t.Fatalf("AddConversation() error = %v", err)
 	}
@@ -253,11 +253,11 @@ func TestConversationHistory_Integration_GetConversationByID(t *testing.T) {
 	defer cleanup()
 
 	// Add conversations
-	err := history.AddConversation("Test input 1", "Test response 1")
+	_, err := history.AddConversation("Test input 1", "Test response 1", types.StatusCompleted)
 	if err != nil {
 		t.Fatalf("AddConversation() error = %v", err)
 	}
-	err = history.AddConversation("Test input 2", "Test response 2")
+	_, err = history.AddConversation("Test input 2", "Test response 2", types.StatusCompleted)
 	if err != nil {
 		t.Fatalf("AddConversation() error = %v", err)
 	}
@@ -299,7 +299,7 @@ func TestConversationHistory_Integration_DeleteConversation(t *testing.T) {
 
 	// Add conversations
 	for i := 0; i < 3; i++ {
-		err := history.AddConversation(fmt.Sprintf("Input %d", i), fmt.Sprintf("Response %d", i))
+		_, err := history.AddConversation(fmt.Sprintf("Input %d", i), fmt.Sprintf("Response %d", i), types.StatusCompleted)
 		if err != nil {
 			t.Fatalf("AddConversation() error = %v", err)
 		}
@@ -372,7 +372,7 @@ func TestConversationHistory_Integration_PersistenceAcrossInstances(t *testing.T
 	}
 
 	for _, conv := range conversations {
-		err := history1.AddConversation(conv.userInput, conv.assistantResponse)
+		_, err := history1.AddConversation(conv.userInput, conv.assistantResponse, types.StatusCompleted)
 		if err != nil {
 			t.Fatalf("AddConversation() error = %v", err)
 		}
@@ -434,7 +434,7 @@ func TestConversationHistory_Integration_RefreshFromStorage(t *testing.T) {
 	defer cleanup()
 
 	// Add conversation through history
-	err := history.AddConversation("Original input", "Original response")
+	_, err := history.AddConversation("Original input", "Original response", types.StatusCompleted)
 	if err != nil {
 		t.Fatalf("AddConversation() error = %v", err)
 	}
@@ -481,7 +481,7 @@ func TestConversationHistory_InMemory(t *testing.T) {
 	}
 
 	// Add conversation
-	err := history.AddConversation("Memory test", "Memory response")
+	_, err := history.AddConversation("Memory test", "Memory response", types.StatusCompleted)
 	if err != nil {
 		t.Fatalf("AddConversation() in memory mode error = %v", err)
 	}
@@ -502,7 +502,7 @@ func TestConversationHistory_Integration_ErrorHandling(t *testing.T) {
 	defer cleanup()
 
 	// Add a conversation
-	err := history.AddConversation("Test input", "Test response")
+	_, err := history.AddConversation("Test input", "Test response", types.StatusCompleted)
 	if err != nil {
 		t.Fatalf("AddConversation() error = %v", err)
 	}
@@ -511,7 +511,7 @@ func TestConversationHistory_Integration_ErrorHandling(t *testing.T) {
 	manager.Close()
 
 	// Try to add another conversation - should handle gracefully
-	err = history.AddConversation("Test input 2", "Test response 2")
+	_, err = history.AddConversation("Test input 2", "Test response 2", types.StatusCompleted)
 	// In real implementation, this might return an error or handle gracefully
 	// For now, we just verify it doesn't panic
 	_ = err // Acknowledge we're not checking the error in this test

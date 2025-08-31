@@ -73,7 +73,7 @@ func (r *Renderer) renderHeader(model *Model) string {
 			Align(lipgloss.Left)
 	}
 
-	header := fmt.Sprintf("lmcodenow v1.0 | Model: %s | %s", model.modelName, model.status)
+	header := fmt.Sprintf("gocodenow v1.0 | Model: %s | %s", model.modelName, model.status)
 	
 	// Add a separator line under the header
 	separatorStyle := lipgloss.NewStyle().
@@ -149,6 +149,7 @@ func (r *Renderer) renderConversationBlock(conv types.ConversationBlock, isSelec
 	if llmResponse == "" {
 		llmResponse = conv.Assistant // Fallback to legacy field
 	}
+	
 
 	if conv.Expanded {
 		// Expanded view with enhanced tool execution display
@@ -293,6 +294,8 @@ func (r *Renderer) getStatusIcon(status types.ConversationStatus) string {
 		return "✅" // Green checkmark for completed
 	case types.StatusError:
 		return "❌" // Red X for error
+	case types.StatusConfigError:
+		return "⚠️" // Warning icon for configuration errors
 	default:
 		return "❓" // Question mark for unknown
 	}

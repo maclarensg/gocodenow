@@ -2,7 +2,10 @@ package ui
 
 import (
 	"context"
+	"fmt"
+	"time"
 
+	"gocodenow/internal/types"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -11,6 +14,10 @@ func (m *Model) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "ctrl+c":
 		return m, tea.Quit
+		
+	case "esc":
+		// Handle ESC for cancellation - need to track double-tap
+		return m.handleEscapeKey()
 
 	case "ctrl+j", "ctrl+enter":
 		// Insert new line in textarea (reliable cross-terminal)
@@ -33,11 +40,20 @@ func (m *Model) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 				
 				// Process the message using the message processor
 				if m.messageProcessor != nil {
-					cmd := m.messageProcessor.ProcessMessage(context.Background(), inputText, m.modelName)
+					// Create cancellable context for this message
+					ctx, cancel := context.WithCancel(context.Background())
+					
+					// Generate a temporary conversation ID to track cancellation
+					// (the real ID will be created by the processor)
+					tempID := fmt.Sprintf("temp_%d", time.Now().UnixNano())
+					m.cancelFunctions[tempID] = cancel
+					
+					cmd := m.messageProcessor.ProcessMessage(ctx, inputText, m.modelName)
 					return m, cmd
 				} else {
 					// Fallback for when message processor is not available
-					if err := m.conversations.AddConversation(inputText, "Message processor not available. Please check configuration."); err != nil {
+					errorMsg := "Message processor not available. Please check configuration."
+					if _, err := m.conversations.AddConversation(inputText, errorMsg, types.StatusConfigError); err != nil {
 						return m, nil
 					}
 					m.updateViewportContentAndScrollToBottom()
@@ -111,5 +127,51 @@ func (m *Model) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	}
 
+	return m, nil
+}
+
+// handleEscapeKey handles escape key for cancelling streaming responses
+func (m *Model) handleEscapeKey() (*Model, tea.Cmd) {
+	now := time.Now()
+	
+	// Check if this is a double-tap (within 500ms)
+	if now.Sub(m.lastEscapeTime) < 500*time.Millisecond {
+		// Double-tap detected - cancel all running streams
+		return m.cancelAllStreams()
+	}
+	
+	// Single tap - just record the time
+	m.lastEscapeTime = now
+	return m, nil
+}
+
+// cancelAllStreams cancels all currently running streaming operations
+func (m *Model) cancelAllStreams() (*Model, tea.Cmd) {
+	cancelCount := 0
+	
+	// Cancel all active streams
+	for convID, cancelFunc := range m.cancelFunctions {
+		// Cancel the context
+		cancelFunc()
+		
+		// Update conversation status to cancelled (using error status for now)
+		m.conversations.UpdateConversationStatus(convID, "error")
+		if conv, err := m.conversations.GetConversationByID(convID); err == nil && conv != nil {
+			// Update with cancellation message
+			m.conversations.UpdateConversationResponse(convID, "Cancelled by user", conv.TokenUsage)
+		}
+		
+		// Clean up tracking
+		delete(m.cancelFunctions, convID)
+		delete(m.processingMessages, convID)
+		cancelCount++
+	}
+	
+	if cancelCount > 0 {
+		// Update viewport to show cancellation
+		m.updateViewportContent()
+		// TODO: Show a brief "Cancelled X operations" message
+	}
+	
 	return m, nil
 }

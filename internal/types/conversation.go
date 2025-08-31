@@ -17,6 +17,7 @@ type ConversationBlock struct {
 	Status        ConversationStatus `json:"status"`
 	TokenUsage    TokenUsage         `json:"token_usage"`
 	ExecutionTime time.Duration      `json:"execution_time"`
+	ErrorMessage  string             `json:"error_message,omitempty"`
 	
 	// Tool execution data
 	ToolCalls      []ToolCall      `json:"tool_calls"`
@@ -41,6 +42,7 @@ const (
 	StatusExecuting
 	StatusCompleted
 	StatusError
+	StatusConfigError // Configuration-related error
 )
 
 // String returns the string representation of ConversationStatus
@@ -54,6 +56,8 @@ func (s ConversationStatus) String() string {
 		return "completed"
 	case StatusError:
 		return "error"
+	case StatusConfigError:
+		return "config_error"
 	default:
 		return "unknown"
 	}
@@ -70,6 +74,8 @@ func ParseConversationStatus(s string) ConversationStatus {
 		return StatusCompleted
 	case "error":
 		return StatusError
+	case "config_error":
+		return StatusConfigError
 	default:
 		return StatusPending // Default fallback
 	}

@@ -79,3 +79,67 @@ tasks:
     internal: true
     cmds:
       - task: itest:check-server
+
+  # Performance benchmarking tasks
+  benchmark:
+    desc: Run all performance benchmarks
+    cmds:
+      - task: benchmark:tools
+      - task: benchmark:storage
+      - task: benchmark:e2e
+      - echo "🎉 All benchmarks completed! Check benchmark_results/ for detailed reports"
+
+  benchmark:tools:
+    desc: Run tool system performance benchmarks
+    cmds:
+      - mkdir -p benchmark_results
+      - echo "🔧 Running tool system benchmarks..."
+      - go test -run="^$" -bench=. -benchmem -count=3 ./internal/tools > benchmark_results/tools_latest.txt || echo "Some benchmarks may have failed - check results file"
+      - echo "✅ Tool benchmarks completed"
+
+  benchmark:storage:
+    desc: Run storage system performance benchmarks
+    cmds:
+      - mkdir -p benchmark_results
+      - echo "💾 Running storage system benchmarks..."
+      - go test -run="^$" -bench=. -benchmem -count=3 ./internal/storage > benchmark_results/storage_latest.txt || echo "Some benchmarks may have failed - check results file"
+      - echo "✅ Storage benchmarks completed"
+
+  benchmark:e2e:
+    desc: Run end-to-end performance benchmarks
+    cmds:
+      - mkdir -p benchmark_results
+      - echo "🚀 Running E2E benchmarks..."
+      - go test -bench=. -benchmem -count=3 ./test/e2e > benchmark_results/e2e_latest.txt 2>/dev/null || echo "No E2E benchmarks found"
+      - echo "✅ E2E benchmarks completed"
+
+  benchmark:profile:
+    desc: Run benchmarks with CPU and memory profiling
+    cmds:
+      - mkdir -p benchmark_results
+      - echo "🧠 Running performance profiling..."
+      - go test -bench=BenchmarkToolExecution -cpuprofile=benchmark_results/tools_cpu_latest.prof ./internal/tools
+      - go test -bench=BenchmarkStorageManager -memprofile=benchmark_results/storage_mem_latest.prof ./internal/storage
+      - echo "✅ Profiling completed - use 'go tool pprof' to analyze"
+
+  benchmark:concurrent:
+    desc: Run concurrent performance benchmarks
+    cmds:
+      - mkdir -p benchmark_results
+      - echo "⚡ Running concurrent performance tests..."
+      - go test -bench="Concurrent" -benchmem -count=5 ./internal/tools ./internal/storage > benchmark_results/concurrent_latest.txt
+      - echo "✅ Concurrent benchmarks completed"
+
+  benchmark:memory:
+    desc: Run memory usage benchmarks
+    cmds:
+      - mkdir -p benchmark_results
+      - echo "🧠 Running memory usage benchmarks..."
+      - go test -bench="Memory" -benchmem -count=3 ./internal/tools ./internal/storage > benchmark_results/memory_latest.txt
+      - echo "✅ Memory benchmarks completed"
+
+  benchmark:clean:
+    desc: Clean benchmark results
+    cmds:
+      - rm -rf benchmark_results/
+      - echo "🗑️ Benchmark results cleaned"

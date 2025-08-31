@@ -66,6 +66,8 @@ type Model struct {
 	height              int
 	messageProcessor    *MessageProcessor
 	processingMessages  map[string]bool // Track which conversations are being processed
+	cancelFunctions     map[string]context.CancelFunc // Track cancellation functions for each conversation
+	lastEscapeTime      time.Time // Track last escape key press for double-tap detection
 	confirmationDialog  *ConfirmationDialog
 	shortcutManager     *ShortcutManager
 	tooltipManager      *TooltipManager
@@ -99,8 +101,8 @@ func New(modelName string, connStatus ConnectionStatus) *Model {
 
 	// Create directories for export and backup
 	homeDir, _ := os.UserHomeDir()
-	exportDir := filepath.Join(homeDir, ".lmcodenow", "exports")
-	backupDir := filepath.Join(homeDir, ".lmcodenow", "backups")
+	exportDir := filepath.Join(homeDir, ".gocodenow", "exports")
+	backupDir := filepath.Join(homeDir, ".gocodenow", "backups")
 	
 	model := &Model{
 		conversations:       models.NewConversationHistoryInMemory(), // Use in-memory version for now
@@ -114,6 +116,7 @@ func New(modelName string, connStatus ConnectionStatus) *Model {
 		height:              24,
 		messageProcessor:    nil, // Will be set via SetMessageProcessor
 		processingMessages:  make(map[string]bool),
+		cancelFunctions:     make(map[string]context.CancelFunc),
 		confirmationDialog:  nil, // Will be created when needed
 		shortcutManager:     NewShortcutManager(),
 		tooltipManager:      NewTooltipManager(),
@@ -249,8 +252,26 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Message processing workflow handlers
 	case MessageProcessingStartedMsg:
 		m.processingMessages[msg.ConversationID] = true
+		
+		// Move cancellation function from temporary ID to real conversation ID
+		// (This is a bit of a hack - we'll find the most recent temp entry)
+		var tempID string
+		var cancelFunc context.CancelFunc
+		for id, cancel := range m.cancelFunctions {
+			if strings.HasPrefix(id, "temp_") {
+				tempID = id
+				cancelFunc = cancel
+				break // Get the most recent one
+			}
+		}
+		if tempID != "" && cancelFunc != nil {
+			delete(m.cancelFunctions, tempID)
+			m.cancelFunctions[msg.ConversationID] = cancelFunc
+		}
+		
 		m.updateViewportContent()
-		return m, msg.ProcessorCmd
+		// Start animation for executing status
+		return m, tea.Batch(msg.ProcessorCmd, m.scheduleAnimationTick())
 		
 	case MessageProcessingErrorMsg:
 		delete(m.processingMessages, msg.ConversationID)
@@ -262,6 +283,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		
 	case MessageProcessingCompleteMsg:
 		delete(m.processingMessages, msg.ConversationID)
+		delete(m.cancelFunctions, msg.ConversationID) // Clean up cancellation function
 		m.updateViewportContent()
 		return m, nil
 		
@@ -327,7 +349,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.tooltipManager != nil {
 			m.tooltipManager.ShowTemporaryMessage(
 				"Tutorial Complete! ✨",
-				"You can now use lmcodenow effectively. Press ? anytime for help.",
+				"You can now use gocodenow effectively. Press ? anytime for help.",
 				3*time.Second,
 				TooltipTypeSuccess,
 			)
@@ -746,7 +768,7 @@ func (m *Model) handleConfirmationResult(result ConfirmationResult) tea.Model {
 func createThemeManager() *ThemeManager {
 	// Try to get config directory from environment or use default
 	homeDir, _ := os.UserHomeDir()
-	configDir := filepath.Join(homeDir, ".config", "lmcodenow")
+	configDir := filepath.Join(homeDir, ".config", "gocodenow")
 	
 	// Create config directory if it doesn't exist
 	os.MkdirAll(configDir, 0755)

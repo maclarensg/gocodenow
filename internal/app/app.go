@@ -6,6 +6,8 @@ import (
 
 	"gocodenow/internal/config"
 	"gocodenow/internal/llm"
+	"gocodenow/internal/security"
+	"gocodenow/internal/tools"
 	"gocodenow/internal/ui"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -41,8 +43,39 @@ func New(cfg *config.Config) *App {
 		Error:     connStatus.Error,
 	}
 	
+	// Create UI model
 	model := ui.New(cfg.LLM.Model, uiConnStatus)
-	program := tea.NewProgram(model, tea.WithAltScreen(), tea.WithMouseCellMotion(), tea.WithMouseAllMotion())
+	
+	// Initialize MessageProcessor if LLM is available
+	if connStatus.Connected {
+		// Create LLM client
+		llmClient, err := factory.CreateClient(&cfg.LLM)
+		if err == nil {
+			// Get the conversation history from the UI model (they must share the same instance!)
+			conversationHistory := model.GetConversationHistory()
+			
+			// Create tool router - for now empty, but this is where file/git/bash tools would be registered
+			toolRouter := tools.NewToolRouter()
+			
+			// Create security services - for now nil, but these would handle confirmations and resource monitoring
+			var securityService *security.ConfirmationService = nil
+			var resourceMonitor *security.ResourceMonitor = nil
+			
+			// Create message processor using the SAME conversation history as the UI
+			messageProcessor := ui.NewMessageProcessor(
+				llmClient,
+				toolRouter,
+				conversationHistory,
+				securityService,
+				resourceMonitor,
+			)
+			
+			// Set the message processor on the UI model
+			model.SetMessageProcessor(messageProcessor)
+		}
+	}
+	
+	program := tea.NewProgram(model)
 	
 	return &App{
 		program:    program,

@@ -353,7 +353,7 @@ func TestMergeConfigs(t *testing.T) {
 func TestLoadConfigFile_HomeDirectoryExpansion(t *testing.T) {
 	// Create a temporary config in a subdirectory to simulate home directory
 	tmpDir := t.TempDir()
-	configDir := filepath.Join(tmpDir, ".config", "lmcodenow")
+	configDir := filepath.Join(tmpDir, ".config", "gocodenow")
 	os.MkdirAll(configDir, 0755)
 	
 	configFile := filepath.Join(configDir, "test.yaml")

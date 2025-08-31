@@ -2,6 +2,7 @@ package ui
 
 import (
 	"context"
+	"gocodenow/internal/models"
 	"gocodenow/internal/types"
 	"strings"
 	"time"
@@ -136,6 +137,11 @@ func (m *Model) consolidateStreamingOutput(chunks []types.StreamingChunk) string
 // SetMessageProcessor sets the message processor for the model
 func (m *Model) SetMessageProcessor(processor *MessageProcessor) {
 	m.messageProcessor = processor
+}
+
+// GetConversationHistory returns the conversation history instance
+func (m *Model) GetConversationHistory() *models.ConversationHistory {
+	return m.conversations
 }
 
 // Message processing handlers

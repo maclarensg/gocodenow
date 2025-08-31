@@ -8,11 +8,51 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 	
 	"gocodenow/internal/config"
+	"github.com/sirupsen/logrus"
 )
+
+// Debug logging for LLM operations
+var llmLogger *logrus.Logger
+
+func init() {
+	// Initialize logrus logger
+	llmLogger = logrus.New()
+	
+	// Check if debug logging is enabled
+	if os.Getenv("GOCODENOW_DEBUG") == "1" || os.Getenv("GOCODENOW_LOGTRACE") == "1" {
+		llmLogger.SetLevel(logrus.DebugLevel)
+		
+		// Create log file in current working directory
+		wd, _ := os.Getwd()
+		logPath := filepath.Join(wd, "gocodenow-llm.log")
+		
+		logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to open LLM log file: %v\n", err)
+			llmLogger.SetOutput(os.Stderr)
+		} else {
+			llmLogger.SetOutput(logFile)
+		}
+		
+		// Set formatter for structured logging
+		llmLogger.SetFormatter(&logrus.TextFormatter{
+			FullTimestamp: true,
+			TimestampFormat: "2006-01-02 15:04:05.000",
+		})
+		
+		llmLogger.Debug("LLM debug logging enabled")
+	} else {
+		// Disable logging if not enabled
+		llmLogger.SetLevel(logrus.PanicLevel)
+		llmLogger.SetOutput(io.Discard)
+	}
+}
 
 // OpenAIProvider implements the Provider interface for OpenAI API
 type OpenAIProvider struct{}
@@ -196,32 +236,48 @@ func (c *OpenAIClient) handleStreamResponse(ctx context.Context, body io.ReadClo
 	defer close(eventChan)
 	defer body.Close()
 	
+	llmLogger.Debug("Starting to read LLM stream response")
 	scanner := bufio.NewScanner(body)
 	var position int64
+	lineCount := 0
 	
 	for scanner.Scan() {
 		line := scanner.Text()
 		position += int64(len(line))
+		lineCount++
+		
+		llmLogger.WithFields(logrus.Fields{
+			"line_number": lineCount,
+			"line_content": line,
+			"position": position,
+		}).Debug("Stream line received")
 		
 		// Skip empty lines
 		if strings.TrimSpace(line) == "" {
+			llmLogger.WithField("line_number", lineCount).Debug("Skipping empty line")
 			continue
 		}
 		
 		// Parse SSE event
 		event := c.parseSSELine(line, position)
+		llmLogger.WithField("event_type", event.Type).Debug("Parsed SSE event")
 		
 		select {
 		case eventChan <- event:
+			llmLogger.WithField("event_type", event.Type).Debug("Sent event to channel")
 		case <-ctx.Done():
+			llmLogger.Debug("Context cancelled, stopping stream")
 			return
 		}
 		
 		// Check if stream is complete
 		if event.Type == "done" {
+			llmLogger.Debug("Stream completed with 'done' event")
 			return
 		}
 	}
+	
+	llmLogger.WithField("total_lines", lineCount).Debug("Stream scanner finished")
 	
 	if err := scanner.Err(); err != nil {
 		select {
@@ -245,9 +301,11 @@ func (c *OpenAIClient) parseSSELine(line string, position int64) *StreamEvent {
 	// Handle "data: " prefix
 	if strings.HasPrefix(line, "data: ") {
 		dataStr := line[6:] // Remove "data: " prefix
+		llmLogger.WithField("sse_data", dataStr).Debug("Found SSE data")
 		
 		// Check for stream end
 		if dataStr == "[DONE]" {
+			llmLogger.Debug("Found stream end marker [DONE]")
 			event.Type = "done"
 			return event
 		}
@@ -255,11 +313,16 @@ func (c *OpenAIClient) parseSSELine(line string, position int64) *StreamEvent {
 		// Parse JSON data
 		var streamResp StreamResponse
 		if err := json.Unmarshal([]byte(dataStr), &streamResp); err != nil {
+			llmLogger.WithFields(logrus.Fields{
+				"error": err.Error(),
+				"json_data": dataStr,
+			}).Error("Failed to parse SSE JSON data")
 			event.Type = "error"
 			event.Error = NewStreamError("failed to parse stream data", position, line, err)
 			return event
 		}
 		
+		llmLogger.Debug("Successfully parsed JSON stream response")
 		event.Type = "message"
 		event.Data = &streamResp
 		return event
@@ -267,11 +330,14 @@ func (c *OpenAIClient) parseSSELine(line string, position int64) *StreamEvent {
 	
 	// Handle other SSE fields (event:, id:, retry:)
 	if strings.HasPrefix(line, "event: ") {
-		event.Type = line[7:]
+		eventType := line[7:]
+		llmLogger.WithField("event_type", eventType).Debug("Found SSE event header")
+		event.Type = eventType
 		return event
 	}
 	
 	// Unknown line format
+	llmLogger.WithField("line", line).Debug("Unknown SSE line format")
 	event.Type = "unknown"
 	return event
 }

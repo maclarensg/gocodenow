@@ -49,7 +49,7 @@ func GetDefaultDatabasePath() (string, error) {
 	}
 
 	// Create path: ~/.local/share/gocodenow/conversations.db
-	dataDir := filepath.Join(homeDir, ".local", "share", "lmcodenow")
+	dataDir := filepath.Join(homeDir, ".local", "share", "gocodenow")
 	dbPath := filepath.Join(dataDir, "conversations.db")
 
 	return dbPath, nil

@@ -3,6 +3,9 @@ package ui
 import (
 	"context"
 	"fmt"
+	"io"
+	"os"
+	"path/filepath"
 	"time"
 
 	"gocodenow/internal/llm"
@@ -12,8 +15,42 @@ import (
 	"gocodenow/internal/types"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 )
+
+// Debug logger for message processor (separate from LLM logger)
+var mpLogger *logrus.Logger
+
+func init() {
+	mpLogger = logrus.New()
+	
+	// Check if debug logging is enabled
+	if os.Getenv("GOCODENOW_DEBUG") == "1" || os.Getenv("GOCODENOW_LOGTRACE") == "1" {
+		mpLogger.SetLevel(logrus.DebugLevel)
+		
+		// Create log file in current working directory
+		wd, _ := os.Getwd()
+		logPath := filepath.Join(wd, "gocodenow-message-processor.log")
+		
+		logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to open MP log file: %v\n", err)
+			mpLogger.SetOutput(os.Stderr)
+		} else {
+			mpLogger.SetOutput(logFile)
+		}
+		
+		mpLogger.SetFormatter(&logrus.TextFormatter{
+			FullTimestamp: true,
+			TimestampFormat: "2006-01-02 15:04:05.000",
+		})
+		
+		mpLogger.Debug("Message processor debug logging enabled")
+	} else {
+		mpLogger.SetLevel(logrus.PanicLevel)
+		mpLogger.SetOutput(io.Discard)
+	}
+}
 
 // MessageProcessor handles the complete workflow of processing user messages
 // including LLM interaction and tool execution
@@ -57,19 +94,16 @@ func (mp *MessageProcessor) ProcessMessage(ctx context.Context, userInput string
 
 // processUserMessage handles the complete message processing workflow
 func (mp *MessageProcessor) processUserMessage(ctx context.Context, userInput string, modelName string) tea.Msg {
-	// Create initial conversation block
-	conversationID := uuid.New().String()
-	
-	// Add to conversation history
-	if err := mp.conversations.AddConversation(userInput, ""); err != nil {
+	// Add to conversation history and get the actual conversation ID
+	conversationID, err := mp.conversations.AddConversation(userInput, "", types.StatusExecuting)
+	if err != nil {
 		return MessageProcessingErrorMsg{
-			ConversationID: conversationID,
+			ConversationID: "",
 			Error:          fmt.Errorf("failed to add conversation: %w", err),
 		}
 	}
 	
-	// Update status to executing
-	mp.conversations.UpdateConversationStatus(conversationID, "executing")
+	// Status is already set to executing by AddConversation, no need to update it again
 	
 	// Start streaming LLM response
 	return MessageProcessingStartedMsg{
@@ -119,65 +153,83 @@ func (mp *MessageProcessor) startLLMStreaming(ctx context.Context, conversationI
 
 // handleLLMStreaming processes the streaming LLM response
 func (mp *MessageProcessor) handleLLMStreaming(ctx context.Context, conversationID string, streamChan <-chan *llm.StreamEvent) tea.Cmd {
+	return tea.Batch(mp.processStreamEvents(ctx, conversationID, streamChan))
+}
+
+// processStreamEvents handles the actual streaming and returns a command that sends updates
+func (mp *MessageProcessor) processStreamEvents(ctx context.Context, conversationID string, streamChan <-chan *llm.StreamEvent) tea.Cmd {
 	return func() tea.Msg {
-		var completeResponse string
-		var toolCalls []llm.ToolCall
-		var tokenUsage llm.TokenUsage
-		
-		for {
-			select {
-			case <-ctx.Done():
-				return MessageProcessingErrorMsg{
-					ConversationID: conversationID,
-					Error:          ctx.Err(),
-				}
-				
-			case event, ok := <-streamChan:
-				if !ok {
-					// Stream finished - process complete response
-					return mp.handleLLMResponseComplete(ctx, conversationID, completeResponse, toolCalls, tokenUsage)
-				}
-				
-				switch event.Type {
-				case "message":
-					// Handle streaming message content
-					if streamResp, ok := event.Data.(*llm.StreamResponse); ok {
-						for _, choice := range streamResp.Choices {
-							if choice.Delta.Content != "" {
-								completeResponse += choice.Delta.Content
-								// Send streaming update
-								tea.Sequence(
-									func() tea.Msg {
-										return StreamingContentUpdateMsg{
-											ConversationID: conversationID,
-											Content:        choice.Delta.Content,
-											Complete:       false,
-										}
-									},
-								)()
-							}
-							
-							// Handle tool calls in streaming response
-							for _, toolCall := range choice.Delta.ToolCalls {
-								toolCalls = append(toolCalls, toolCall)
-							}
+		// Start the streaming loop
+		return mp.streamProcessor(ctx, conversationID, streamChan)
+	}
+}
+
+// streamProcessor handles the streaming events and sends updates
+func (mp *MessageProcessor) streamProcessor(ctx context.Context, conversationID string, streamChan <-chan *llm.StreamEvent) tea.Msg {
+	var completeResponse string
+	var toolCalls []llm.ToolCall
+	var tokenUsage llm.TokenUsage
+	
+	for {
+		select {
+		case <-ctx.Done():
+			mpLogger.WithError(ctx.Err()).Debug("Stream cancelled by context")
+			return MessageProcessingErrorMsg{
+				ConversationID: conversationID,
+				Error:          ctx.Err(),
+			}
+			
+		case event, ok := <-streamChan:
+			if !ok {
+				// Stream finished - process complete response
+				mpLogger.WithFields(logrus.Fields{
+					"conversation_id": conversationID,
+					"complete_response": completeResponse,
+					"tool_calls_count": len(toolCalls),
+				}).Debug("Stream channel closed, processing completion")
+				return mp.handleLLMResponseComplete(ctx, conversationID, completeResponse, toolCalls, tokenUsage)
+			}
+			
+			switch event.Type {
+			case "message":
+				// Handle streaming message content
+				if streamResp, ok := event.Data.(*llm.StreamResponse); ok {
+					for _, choice := range streamResp.Choices {
+						if choice.Delta.Content != "" {
+							completeResponse += choice.Delta.Content
+							// Send streaming update to UI for visual feedback
+							// TODO: Send intermediate update here for live streaming
+						}
+						
+						// Handle tool calls in streaming response
+						for _, toolCall := range choice.Delta.ToolCalls {
+							toolCalls = append(toolCalls, toolCall)
 						}
 					}
-					
-				case "error":
-					return MessageProcessingErrorMsg{
-						ConversationID: conversationID,
-						Error:          event.Error,
-					}
-					
-				case "done":
-					// Extract final token usage if available
-					if finalResp, ok := event.Data.(*llm.ChatResponse); ok {
-						tokenUsage = finalResp.Usage
-					}
-					
-					return mp.handleLLMResponseComplete(ctx, conversationID, completeResponse, toolCalls, tokenUsage)
 				}
+				
+			case "error":
+				mpLogger.WithError(event.Error).Debug("Stream error received")
+				return MessageProcessingErrorMsg{
+					ConversationID: conversationID,
+					Error:          event.Error,
+				}
+				
+			case "done":
+				// Extract final token usage if available
+				if finalResp, ok := event.Data.(*llm.ChatResponse); ok {
+					tokenUsage = finalResp.Usage
+				}
+				
+				mpLogger.WithFields(logrus.Fields{
+					"conversation_id": conversationID,
+					"complete_response": completeResponse,
+					"tool_calls_count": len(toolCalls),
+				}).Debug("Processing stream completion")
+				
+				result := mp.handleLLMResponseComplete(ctx, conversationID, completeResponse, toolCalls, tokenUsage)
+				mpLogger.WithField("result_type", fmt.Sprintf("%T", result)).Debug("Stream completion result")
+				return result
 			}
 		}
 	}
@@ -191,39 +243,45 @@ func (mp *MessageProcessor) handleLLMResponseComplete(
 	toolCalls []llm.ToolCall,
 	tokenUsage llm.TokenUsage,
 ) tea.Msg {
+	mpLogger.WithFields(logrus.Fields{
+		"conversation_id": conversationID,
+		"response": response,
+		"tool_calls_count": len(toolCalls),
+	}).Debug("handleLLMResponseComplete called")
+	
 	// Update conversation with LLM response
-	conv, err := mp.conversations.GetConversationByID(conversationID)
-	if err != nil {
+	tokenUsageTyped := types.TokenUsage{
+		InputTokens:  tokenUsage.PromptTokens,
+		OutputTokens: tokenUsage.CompletionTokens,
+	}
+	
+	if err := mp.conversations.UpdateConversationResponse(conversationID, response, tokenUsageTyped); err != nil {
+		mpLogger.WithError(err).Error("Failed to update conversation with LLM response")
 		return MessageProcessingErrorMsg{
 			ConversationID: conversationID,
-			Error:          fmt.Errorf("failed to get conversation: %w", err),
+			Error:          fmt.Errorf("failed to update conversation: %w", err),
 		}
 	}
 	
-	if conv != nil {
-		conv.LLMResponse = response
-		conv.TokenUsage = types.TokenUsage{
-			InputTokens:  tokenUsage.PromptTokens,
-			OutputTokens: tokenUsage.CompletionTokens,
-		}
-	}
+	mpLogger.WithField("conversation_id", conversationID).Debug("Successfully updated conversation with LLM response")
 	
 	// If no tool calls, mark as completed
 	if len(toolCalls) == 0 {
+		mpLogger.WithField("conversation_id", conversationID).Debug("Updating conversation status to completed")
 		mp.conversations.UpdateConversationStatus(conversationID, "completed")
-		return MessageProcessingCompleteMsg{
+		
+		completionMsg := MessageProcessingCompleteMsg{
 			ConversationID: conversationID,
 			FinalResponse:  response,
 		}
+		mpLogger.WithField("conversation_id", conversationID).Debug("Returning MessageProcessingCompleteMsg")
+		return completionMsg
 	}
 	
 	// Convert LLM tool calls to internal format and start execution
 	internalToolCalls := mp.convertLLMToolCalls(toolCalls)
 	
-	// Update conversation with tool calls
-	if conv != nil {
-		conv.ToolCalls = internalToolCalls
-	}
+	// TODO: Update conversation with tool calls if needed (for now, tool execution will handle this)
 	
 	return ToolExecutionStartedMsg{
 		ConversationID: conversationID,

@@ -85,9 +85,9 @@ type BackupStats struct {
 // NewBackupManager creates a new backup manager
 func NewBackupManager(backupDir string, maxBackups int) (*BackupManager, error) {
 	if backupDir == "" {
-		// Default to .lmcodenow-backups in user's home directory
+		// Default to .gocodenow-backups in user's home directory
 		homeDir, _ := os.UserHomeDir()
-		backupDir = filepath.Join(homeDir, ".lmcodenow-backups")
+		backupDir = filepath.Join(homeDir, ".gocodenow-backups")
 	}
 
 	// Create backup directory if it doesn't exist

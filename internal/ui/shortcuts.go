@@ -443,7 +443,7 @@ func (sm *ShortcutManager) RenderHelp(width, height int) string {
 	var content strings.Builder
 	
 	// Title
-	content.WriteString(titleStyle.Render("🚀 lmcodenow - Keyboard Shortcuts"))
+	content.WriteString(titleStyle.Render("🚀 gocodenow - Keyboard Shortcuts"))
 	content.WriteString("\n")
 	
 	// Group bindings by category

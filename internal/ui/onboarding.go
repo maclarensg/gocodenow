@@ -54,8 +54,8 @@ func (of *OnboardingFlow) initializeSteps() {
 	steps := []OnboardingStep{
 		{
 			ID:          "welcome",
-			Title:       "Welcome to lmcodenow! 🚀",
-			Content:     "lmcodenow is your AI-powered coding assistant that runs in your terminal. It can help you with coding problems, file operations, debugging, and much more.",
+			Title:       "Welcome to gocodenow! 🚀",
+			Content:     "gocodenow is your AI-powered coding assistant that runs in your terminal. It can help you with coding problems, file operations, debugging, and much more.",
 			Explanation: "This tutorial will guide you through the basic features in just a few steps.",
 			Action:      "Press any key to continue",
 			ExpectedKey: "any",
@@ -91,7 +91,7 @@ func (of *OnboardingFlow) initializeSteps() {
 		{
 			ID:          "advanced_features",
 			Title:       "Advanced Features",
-			Content:     "lmcodenow has many powerful features to enhance your workflow:",
+			Content:     "gocodenow has many powerful features to enhance your workflow:",
 			Explanation: "• Press ? or F1 for complete keyboard shortcuts\n• Del or 'd' deletes conversations\n• Ctrl+Del clears all conversations (with confirmation)\n• The AI can read, write, and modify files in your project\n• Tool execution progress is shown in real-time",
 			Action:      "Press ? to see the help panel",
 			ExpectedKey: "?",
@@ -100,7 +100,7 @@ func (of *OnboardingFlow) initializeSteps() {
 		{
 			ID:          "completion",
 			Title:       "Tutorial Complete! ✨",
-			Content:     "You're now ready to use lmcodenow effectively. The AI assistant can help you with a wide range of tasks:",
+			Content:     "You're now ready to use gocodenow effectively. The AI assistant can help you with a wide range of tasks:",
 			Explanation: "• Code generation and debugging\n• File operations and project management\n• Explaining complex concepts\n• Reviewing and optimizing code\n\nRemember: Press ? anytime for help, and tooltips will guide you along the way.",
 			Action:      "Press any key to finish the tutorial",
 			ExpectedKey: "any",

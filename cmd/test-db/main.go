@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	fmt.Println("🗄️ Testing lmcodenow database functionality...")
+	fmt.Println("🗄️ Testing gocodenow database functionality...")
 	
 	if err := storage.TestDatabase(); err != nil {
 		fmt.Fprintf(os.Stderr, "❌ Database test failed: %v\n", err)

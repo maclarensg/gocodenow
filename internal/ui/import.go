@@ -214,7 +214,7 @@ func (im *ImportManager) importFromJSON(filePath string) ([]types.ConversationBl
 
 	var conversations []types.ConversationBlock
 
-	// Try to decode as lmcodenow export format first
+	// Try to decode as gocodenow export format first
 	var exportData struct {
 		Conversations []types.ConversationBlock `json:"conversations"`
 	}

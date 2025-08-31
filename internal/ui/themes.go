@@ -109,8 +109,8 @@ func (tm *ThemeManager) initializeDefaultThemes() {
 	defaultTheme := &Theme{
 		Colors: ThemeColors{
 			Name:        "default",
-			Description: "Default lmcodenow theme with blue accents",
-			Author:      "lmcodenow",
+			Description: "Default gocodenow theme with blue accents",
+			Author:      "gocodenow",
 			Version:     "1.0.0",
 			Colors: ColorPalette{
 				Primary:     "#00D7FF", // Bright cyan
@@ -157,7 +157,7 @@ func (tm *ThemeManager) initializeDefaultThemes() {
 		Colors: ThemeColors{
 			Name:        "dark",
 			Description: "Dark theme with purple accents",
-			Author:      "lmcodenow",
+			Author:      "gocodenow",
 			Version:     "1.0.0",
 			Colors: ColorPalette{
 				Primary:     "#AA00FF", // Purple
@@ -186,7 +186,7 @@ func (tm *ThemeManager) initializeDefaultThemes() {
 		Colors: ThemeColors{
 			Name:        "light",
 			Description: "Light theme with blue accents",
-			Author:      "lmcodenow",
+			Author:      "gocodenow",
 			Version:     "1.0.0",
 			Colors: ColorPalette{
 				Primary:     "#0066FF", // Blue
@@ -215,7 +215,7 @@ func (tm *ThemeManager) initializeDefaultThemes() {
 		Colors: ThemeColors{
 			Name:        "high-contrast",
 			Description: "High contrast theme for accessibility",
-			Author:      "lmcodenow",
+			Author:      "gocodenow",
 			Version:     "1.0.0",
 			Colors: ColorPalette{
 				Primary:     "#FFFF00", // Bright yellow

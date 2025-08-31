@@ -97,8 +97,8 @@ func (ch *ConversationHistory) ToggleExpanded() {
 	}
 }
 
-// AddConversation adds a new conversation block and persists it
-func (ch *ConversationHistory) AddConversation(userInput string, assistantResponse string) error {
+// AddConversation adds a new conversation block and persists it, returns the conversation ID
+func (ch *ConversationHistory) AddConversation(userInput string, assistantResponse string, status types.ConversationStatus) (string, error) {
 	// Generate a unique ID for the conversation
 	conversationID := uuid.New().String()
 	
@@ -108,7 +108,7 @@ func (ch *ConversationHistory) AddConversation(userInput string, assistantRespon
 		LLMResponse: assistantResponse,
 		ModelName:   "", // Will be set when sending to LLM
 		Timestamp:   time.Now(),
-		Status:      types.StatusCompleted,
+		Status:      status,
 		TokenUsage:  types.TokenUsage{InputTokens: 0, OutputTokens: 0},
 		ExecutionTime: 0,
 		ToolCalls:     []types.ToolCall{},
@@ -123,10 +123,15 @@ func (ch *ConversationHistory) AddConversation(userInput string, assistantRespon
 		Files:     []string{},
 	}
 	
+	// Set error message if status indicates an error
+	if status == types.StatusError || status == types.StatusConfigError {
+		newConv.ErrorMessage = assistantResponse
+	}
+	
 	// Save to storage if available
 	if ch.storageManager != nil {
 		if err := ch.storageManager.Save(&newConv); err != nil {
-			return err
+			return "", err
 		}
 	}
 	
@@ -136,7 +141,7 @@ func (ch *ConversationHistory) AddConversation(userInput string, assistantRespon
 	// Select the newest conversation
 	ch.selected = len(ch.cachedBlocks) - 1
 	
-	return nil
+	return conversationID, nil
 }
 
 // ensureCacheUpdated refreshes the cache if it's dirty
@@ -191,6 +196,29 @@ func (ch *ConversationHistory) UpdateConversationStatus(conversationID string, s
 	for i := range ch.cachedBlocks {
 		if ch.cachedBlocks[i].ID == conversationID {
 			ch.cachedBlocks[i].Status = types.ParseConversationStatus(status)
+			
+			// Persist to storage if available
+			if ch.storageManager != nil {
+				if err := ch.storageManager.Save(&ch.cachedBlocks[i]); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}
+	
+	return nil // Conversation not found in cache
+}
+
+// UpdateConversationResponse updates the LLM response and token usage of a conversation
+func (ch *ConversationHistory) UpdateConversationResponse(conversationID string, response string, tokenUsage types.TokenUsage) error {
+	ch.ensureCacheUpdated()
+	
+	// Find and update in cache
+	for i := range ch.cachedBlocks {
+		if ch.cachedBlocks[i].ID == conversationID {
+			ch.cachedBlocks[i].LLMResponse = response
+			ch.cachedBlocks[i].TokenUsage = tokenUsage
 			
 			// Persist to storage if available
 			if ch.storageManager != nil {

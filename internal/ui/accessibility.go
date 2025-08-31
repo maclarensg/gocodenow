@@ -248,7 +248,7 @@ func (am *AccessibilityManager) GetAccessibleDescription(element string, context
 		if ctx, ok := context["status"].(string); ok {
 			status = ctx
 		}
-		return fmt.Sprintf("Header: lmcodenow version 1.0, connected to %s model, status: %s", modelName, status)
+		return fmt.Sprintf("Header: gocodenow version 1.0, connected to %s model, status: %s", modelName, status)
 		
 	case "conversation_area":
 		count := 0

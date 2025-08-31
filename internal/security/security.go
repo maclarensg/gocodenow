@@ -1,4 +1,4 @@
-// Package security provides comprehensive security framework for lmcodenow
+// Package security provides comprehensive security framework for gocodenow
 //
 // This package implements security policies, sandboxing, user confirmation systems,
 // and resource monitoring to ensure safe execution of tools and commands.

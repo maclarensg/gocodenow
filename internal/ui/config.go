@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -519,6 +518,7 @@ func (cui *ConfigUI) getCurrentValue(key string) string {
 	}
 
 	section, field := parts[0], parts[1]
+	_ = section // Mark as used to avoid compiler warning
 	config := cui.currentConfig
 
 	switch section {
@@ -590,6 +590,7 @@ func (cui *ConfigUI) parseValue(key, value string) interface{} {
 	}
 
 	section, field := parts[0], parts[1]
+	_ = section // Mark as used to avoid compiler warning
 
 	// Type-specific parsing based on field
 	switch {

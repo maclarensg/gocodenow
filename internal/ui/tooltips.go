@@ -73,7 +73,7 @@ func (tm *TooltipManager) initializeDefaultTooltips() {
 	defaultTooltips := []Tooltip{
 		{
 			ID:       "welcome",
-			Title:    "Welcome to lmcodenow! 🚀",
+			Title:    "Welcome to gocodenow! 🚀",
 			Content:  "This is your AI coding assistant. Type your questions or requests in the input area below and press Enter to start a conversation.",
 			Type:     TooltipTypeInfo,
 			Position: TooltipPositionTop,

@@ -35,7 +35,7 @@ func DefaultStorageConfig() StorageConfig {
 	userDataDir := getUserDataDir()
 	
 	return StorageConfig{
-		DatabasePath:      filepath.Join(userDataDir, "lmcodenow", "conversations.db"),
+		DatabasePath:      filepath.Join(userDataDir, "gocodenow", "conversations.db"),
 		CacheSize:         50,
 		AutoSaveFreq:      5 * time.Minute,
 		MaxMemoryMB:       100,

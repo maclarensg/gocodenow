@@ -124,3 +124,51 @@ The TUI has been thoroughly tested for:
 - Memory management with FIFO buffer limits
 
 The project is designed to be extensible for real LLM provider integration while maintaining the established UI/UX patterns that mirror Claude Code's functionality.
+
+## Naming Convention
+
+**IMPORTANT**: The project name is **"gocodenow"** (all lowercase, no spaces). Use this consistently in:
+- File paths and directory names
+- Configuration paths (`.gocodenow`, `.config/gocodenow`)  
+- Database paths (`~/.local/share/gocodenow/`)
+- Backup and temporary file naming (`gocodenow_backup_`, `gocodenow_test_`)
+- User-facing text and UI elements
+- Comments and documentation
+- Export file naming (`gocodenow_export_`)
+- Cache directories and prefixes
+
+Never use the old name "lmcodenow" - it has been completely replaced with "gocodenow".
+
+## Development Workflow Preferences
+
+**IMPORTANT**: When adding new functionality:
+- **Use Taskfile.yml**: Add new commands and workflows to the existing Taskfile.yml instead of creating standalone scripts
+- **No separate scripts**: Avoid creating shell scripts in `scripts/` directory - integrate everything into the task runner
+- **Consistent task naming**: Follow the existing pattern (`task:subtask` format)
+- **Use existing patterns**: Follow the established structure for integration tests, benchmarks, etc.
+
+Examples:
+- ✅ Add `task benchmark:tools` to Taskfile.yml
+- ❌ Create `scripts/run-benchmarks.sh`
+
+## Documentation Standards for TUI Applications
+
+**IMPORTANT**: gocodenow is a **Terminal User Interface (TUI) application**, not an API service. Documentation should reflect this:
+
+**Required Documentation:**
+- ✅ **User Guide**: How to install, configure, and use the TUI
+- ✅ **Developer/Contributor Guide**: Architecture, development setup, contribution workflow
+- ✅ **Performance Benchmarks**: Measure and optimize TUI performance, file operations, storage
+
+**NOT Required for TUI Apps:**
+- ❌ **API Reference**: gocodenow doesn't expose APIs - it's a standalone terminal application
+- ❌ **REST API Docs**: Not applicable for terminal applications
+- ❌ **SDK Documentation**: Users interact directly with the TUI, not through SDKs
+
+When planning documentation tasks, focus on:
+1. User experience with the terminal interface
+2. Development patterns for TUI components (Bubble Tea)  
+3. Performance of file operations and storage systems
+4. Tool execution and security frameworks
+
+Avoid generic "API documentation" tasks that don't apply to terminal applications.

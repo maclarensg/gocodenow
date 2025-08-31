@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -476,12 +475,12 @@ func (cv *ConfigValidator) addDefaultRules() {
 }
 
 // ValidateWithRules validates configuration using all registered rules
-func (cv *ConfigValidator) ValidateWithRules(config *Config) []ValidationError {
-	var errors []ValidationError
+func (cv *ConfigValidator) ValidateWithRules(config *Config) []ConfigValidationError {
+	var errors []ConfigValidationError
 
 	for _, rule := range cv.rules {
 		if err := rule.Validator(config); err != nil {
-			errors = append(errors, ValidationError{
+			errors = append(errors, ConfigValidationError{
 				Rule:    rule.Name,
 				Message: err.Error(),
 			})
@@ -491,14 +490,14 @@ func (cv *ConfigValidator) ValidateWithRules(config *Config) []ValidationError {
 	return errors
 }
 
-// ValidationError represents a validation error with rule context
-type ValidationError struct {
+// ConfigValidationError represents a validation error with rule context
+type ConfigValidationError struct {
 	Rule    string `json:"rule"`
 	Message string `json:"message"`
 }
 
-func (ve ValidationError) Error() string {
-	return fmt.Sprintf("validation rule '%s' failed: %s", ve.Rule, ve.Message)
+func (cve ConfigValidationError) Error() string {
+	return fmt.Sprintf("validation rule '%s' failed: %s", cve.Rule, cve.Message)
 }
 
 // Validation rule implementations

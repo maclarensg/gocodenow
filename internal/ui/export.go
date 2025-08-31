@@ -108,7 +108,7 @@ func (em *ExportManager) ExportConversations(conversations []types.ConversationB
 	// Generate filename if not provided
 	if options.FilePath == "" {
 		timestamp := time.Now().Format("2006-01-02_15-04-05")
-		filename := fmt.Sprintf("lmcodenow_export_%s%s", timestamp, options.Format.FileExtension())
+		filename := fmt.Sprintf("gocodenow_export_%s%s", timestamp, options.Format.FileExtension())
 		options.FilePath = filepath.Join(em.defaultExportDir, filename)
 	}
 
@@ -206,7 +206,7 @@ func (em *ExportManager) exportToJSON(conversations []types.ConversationBlock, o
 		}{
 			ExportedAt:    time.Now(),
 			Version:       "1.0",
-			Format:        "lmcodenow-json",
+			Format:        "gocodenow-json",
 			Count:         len(conversations),
 			Conversations: conversations,
 			Options:       options,
@@ -241,7 +241,7 @@ func (em *ExportManager) exportToMarkdown(conversations []types.ConversationBloc
 	defer file.Close()
 
 	// Write header
-	fmt.Fprintf(file, "# LMCodeNow Conversation Export\n\n")
+	fmt.Fprintf(file, "# GoCodeNow Conversation Export\n\n")
 	fmt.Fprintf(file, "**Exported:** %s  \n", time.Now().Format("2006-01-02 15:04:05"))
 	fmt.Fprintf(file, "**Count:** %d conversations  \n\n", len(conversations))
 
@@ -389,7 +389,7 @@ func (em *ExportManager) exportToHTML(conversations []types.ConversationBlock, o
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LMCodeNow Conversation Export</title>
+    <title>GoCodeNow Conversation Export</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 40px; line-height: 1.6; }
         .header { border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 30px; }
@@ -407,7 +407,7 @@ func (em *ExportManager) exportToHTML(conversations []types.ConversationBlock, o
 
 	// Write header
 	fmt.Fprintf(file, `<div class="header">
-        <h1>LMCodeNow Conversation Export</h1>
+        <h1>GoCodeNow Conversation Export</h1>
         <p><strong>Exported:</strong> %s</p>
         <p><strong>Count:</strong> %d conversations</p>
     </div>`, time.Now().Format("2006-01-02 15:04:05"), len(conversations))
@@ -486,7 +486,7 @@ func (em *ExportManager) exportToHTML(conversations []types.ConversationBlock, o
 // GetDefaultExportPath generates a default export path
 func (em *ExportManager) GetDefaultExportPath(format ExportFormat) string {
 	timestamp := time.Now().Format("2006-01-02_15-04-05")
-	filename := fmt.Sprintf("lmcodenow_export_%s%s", timestamp, format.FileExtension())
+	filename := fmt.Sprintf("gocodenow_export_%s%s", timestamp, format.FileExtension())
 	return filepath.Join(em.defaultExportDir, filename)
 }
 

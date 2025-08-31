@@ -1,0 +1,58 @@
+--- FAIL: TestBashToolIntegration (0.00s)
+    integration_test.go:111: Bash execution failed: no executor registered for tool 'bash'
+--- FAIL: TestToolExecutionMetrics (0.00s)
+    integration_test.go:148: Sleep execution failed: required parameter 'duration_ms' is missing
+--- FAIL: TestToolExecutionErrorHandling (0.00s)
+    integration_test.go:278: Execution should not error, got: required parameter 'error_type' is missing
+    integration_test.go:292: Error message mismatch.
+        Expected: "Intentional test error"
+        Got: "required parameter 'error_type' is missing"
+--- FAIL: TestInvalidToolParameters (0.00s)
+    integration_test.go:340: Should handle invalid parameters gracefully, got: required parameter 'path' is missing
+--- FAIL: TestBatchToolExecution (0.00s)
+    integration_test.go:421: Batch execution 0 failed: required parameter 'file_path' is missing
+    integration_test.go:421: Batch execution 1 failed: required parameter 'file_path' is missing
+    integration_test.go:430: Result 0 is nil
+    integration_test.go:430: Result 1 is nil
+    integration_test.go:443: Batch file 1 should exist
+    integration_test.go:443: Batch file 2 should exist
+--- FAIL: TestBashToolIntegration (0.00s)
+    integration_test.go:111: Bash execution failed: no executor registered for tool 'bash'
+--- FAIL: TestToolExecutionMetrics (0.00s)
+    integration_test.go:148: Sleep execution failed: required parameter 'duration_ms' is missing
+--- FAIL: TestToolExecutionErrorHandling (0.00s)
+    integration_test.go:278: Execution should not error, got: required parameter 'error_type' is missing
+    integration_test.go:292: Error message mismatch.
+        Expected: "Intentional test error"
+        Got: "required parameter 'error_type' is missing"
+--- FAIL: TestInvalidToolParameters (0.00s)
+    integration_test.go:340: Should handle invalid parameters gracefully, got: required parameter 'path' is missing
+--- FAIL: TestBatchToolExecution (0.00s)
+    integration_test.go:421: Batch execution 0 failed: required parameter 'file_path' is missing
+    integration_test.go:421: Batch execution 1 failed: required parameter 'file_path' is missing
+    integration_test.go:430: Result 0 is nil
+    integration_test.go:430: Result 1 is nil
+    integration_test.go:443: Batch file 1 should exist
+    integration_test.go:443: Batch file 2 should exist
+--- FAIL: TestBashToolIntegration (0.00s)
+    integration_test.go:111: Bash execution failed: no executor registered for tool 'bash'
+--- FAIL: TestToolExecutionMetrics (0.00s)
+    integration_test.go:148: Sleep execution failed: required parameter 'duration_ms' is missing
+--- FAIL: TestToolExecutionErrorHandling (0.00s)
+    integration_test.go:278: Execution should not error, got: required parameter 'error_type' is missing
+    integration_test.go:292: Error message mismatch.
+        Expected: "Intentional test error"
+        Got: "required parameter 'error_type' is missing"
+--- FAIL: TestInvalidToolParameters (0.00s)
+    integration_test.go:340: Should handle invalid parameters gracefully, got: required parameter 'path' is missing
+--- FAIL: TestBatchToolExecution (0.00s)
+    integration_test.go:421: Batch execution 0 failed: required parameter 'file_path' is missing
+    integration_test.go:421: Batch execution 1 failed: required parameter 'file_path' is missing
+    integration_test.go:430: Result 0 is nil
+    integration_test.go:430: Result 1 is nil
+    integration_test.go:443: Batch file 1 should exist
+    integration_test.go:443: Batch file 2 should exist
+FAIL
+exit status 1
+FAIL	gocodenow/internal/tools	5.805s
+FAIL

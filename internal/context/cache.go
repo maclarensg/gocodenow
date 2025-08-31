@@ -25,7 +25,7 @@ func NewCacheManager() *DefaultCacheManager {
 	return &DefaultCacheManager{
 		cacheDir:    cacheDir,
 		maxAge:      24 * time.Hour, // Default 24-hour cache
-		cachePrefix: "lmcodenow-context-",
+		cachePrefix: "gocodenow-context-",
 	}
 }
 
@@ -38,7 +38,7 @@ func NewCacheManagerWithOptions(cacheDir string, maxAge time.Duration) *DefaultC
 	return &DefaultCacheManager{
 		cacheDir:    cacheDir,
 		maxAge:      maxAge,
-		cachePrefix: "lmcodenow-context-",
+		cachePrefix: "gocodenow-context-",
 	}
 }
 
@@ -304,16 +304,16 @@ func (c *DefaultCacheManager) checkWorkspaceModifications(ctx *ProjectContext) b
 func getCacheDir() string {
 	// Try XDG cache directory first (Linux)
 	if xdgCache := os.Getenv("XDG_CACHE_HOME"); xdgCache != "" {
-		return filepath.Join(xdgCache, "lmcodenow")
+		return filepath.Join(xdgCache, "gocodenow")
 	}
 	
 	// Try user cache directory (Windows/macOS)
 	if userCacheDir, err := os.UserCacheDir(); err == nil {
-		return filepath.Join(userCacheDir, "lmcodenow")
+		return filepath.Join(userCacheDir, "gocodenow")
 	}
 	
 	// Fallback to temp directory
-	return filepath.Join(os.TempDir(), "lmcodenow-cache")
+	return filepath.Join(os.TempDir(), "gocodenow-cache")
 }
 
 // CacheInfo provides information about cache status

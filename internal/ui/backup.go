@@ -60,7 +60,7 @@ func (bm *BackupManager) CreateBackup(conversations []types.ConversationBlock, d
 	}
 
 	timestamp := time.Now().Format("2006-01-02_15-04-05")
-	backupName := fmt.Sprintf("lmcodenow_backup_%s.tar.gz", timestamp)
+	backupName := fmt.Sprintf("gocodenow_backup_%s.tar.gz", timestamp)
 	backupPath := filepath.Join(bm.backupDir, backupName)
 
 	// Create backup file
@@ -79,7 +79,7 @@ func (bm *BackupManager) CreateBackup(conversations []types.ConversationBlock, d
 	defer tarWriter.Close()
 
 	// Create temporary JSON export
-	tempDir := filepath.Join(os.TempDir(), fmt.Sprintf("lmcodenow_backup_%d", time.Now().Unix()))
+	tempDir := filepath.Join(os.TempDir(), fmt.Sprintf("gocodenow_backup_%d", time.Now().Unix()))
 	if err := os.MkdirAll(tempDir, 0755); err != nil {
 		return "", fmt.Errorf("failed to create temp directory: %w", err)
 	}
@@ -112,7 +112,7 @@ func (bm *BackupManager) CreateBackup(conversations []types.ConversationBlock, d
 		TotalConvs:      len(conversations),
 		Checksum:        checksum,
 		Description:     description,
-		Source:          "lmcodenow",
+		Source:          "gocodenow",
 		CompressionType: "gzip",
 	}
 
@@ -148,7 +148,7 @@ func (bm *BackupManager) RestoreBackup(backupPath string, validateData bool) (*I
 	}
 
 	// Create temporary directory for extraction
-	tempDir := filepath.Join(os.TempDir(), fmt.Sprintf("lmcodenow_restore_%d", time.Now().Unix()))
+	tempDir := filepath.Join(os.TempDir(), fmt.Sprintf("gocodenow_restore_%d", time.Now().Unix()))
 	if err := os.MkdirAll(tempDir, 0755); err != nil {
 		return nil, fmt.Errorf("failed to create temp directory: %w", err)
 	}
@@ -204,7 +204,7 @@ func (bm *BackupManager) ListBackups() ([]BackupInfo, error) {
 	var backups []BackupInfo
 	for _, file := range files {
 		if !file.IsDir() && filepath.Ext(file.Name()) == ".gz" &&
-			(strings.HasPrefix(file.Name(), "lmcodenow_backup_") || strings.HasSuffix(file.Name(), ".tar.gz")) {
+			(strings.HasPrefix(file.Name(), "gocodenow_backup_") || strings.HasSuffix(file.Name(), ".tar.gz")) {
 			
 			info, err := file.Info()
 			if err != nil {
@@ -242,7 +242,7 @@ type BackupInfo struct {
 // getBackupMetadata attempts to read metadata from a backup file
 func (bm *BackupManager) getBackupMetadata(backupPath string) (*BackupMetadata, error) {
 	// Create temporary directory
-	tempDir := filepath.Join(os.TempDir(), fmt.Sprintf("lmcodenow_meta_%d", time.Now().Unix()))
+	tempDir := filepath.Join(os.TempDir(), fmt.Sprintf("gocodenow_meta_%d", time.Now().Unix()))
 	if err := os.MkdirAll(tempDir, 0755); err != nil {
 		return nil, err
 	}
@@ -534,7 +534,7 @@ func (bm *BackupManager) VerifyBackup(backupPath string) error {
 	}
 
 	// Create temporary directory for extraction
-	tempDir := filepath.Join(os.TempDir(), fmt.Sprintf("lmcodenow_verify_%d", time.Now().Unix()))
+	tempDir := filepath.Join(os.TempDir(), fmt.Sprintf("gocodenow_verify_%d", time.Now().Unix()))
 	if err := os.MkdirAll(tempDir, 0755); err != nil {
 		return fmt.Errorf("failed to create temp directory: %w", err)
 	}
